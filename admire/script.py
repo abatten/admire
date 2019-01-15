@@ -6,9 +6,11 @@ import yt
 import glob
 import h5py
 import os
+import sys
 import matplotlib.pyplot as plt
+plt.rcParams['text.usetex'] = True
 import interpolate
-
+import time
 import configparser as CP
 
 def read_params(param_path, verbose=False):
@@ -29,20 +31,57 @@ def read_params(param_path, verbose=False):
     params["verbose"] = verbose
 
     config = CP.ConfigParser()
-    config.read(params["params_name"])
+    config.read(params["param_path"])
 
     params["SnapshotDir"] = config.get("General", "SnapshotDir")
     params["OutputDataDir"] = config.get("General", "OutputDataDir")
     params["LogFileName"] = config.get("LOG", "LogFileName" )
     params["YTLogLevel"] = config.getint("LOG", "YTLogLevel")
+    params["LogDir"] = config.get("LOG", "LogDir")
     params["MatplotlibBackend"] = config.get("General", "MatplotlibBackend")
 
     return params
 
+def initialise(param_path, verbose=False):
+    """
+    Initialise the pipeline by reading the parameter file and set
+    up the log file
 
-def create_log_file(file_name, output_dir):
+    Parameters
+    ----------
+    param_path : string
+        The path to the parameter file for the script
 
-    loc = os.path.join(output_dir, file_name)
+    verbose : boolean
+    Run the script verbosely. Default: False
+
+    Returns
+    -------
+    params : dictionary
+        A dictionary with the values from the parameter file.
+    log : 
+        The log file
+    """
+
+    params = read_params(param_path, verbose)
+
+    log = create_log_file(params["LogFileName"], params["LogDir"])
+
+    for key in list(params.keys()):
+        print("{0:<20} {1}".format(key, params[key]), file=log)
+        if verbose:
+           print("{0:<20} {1}".format(key, params[key])) 
+
+
+    return params, log
+
+
+def create_log_file(file_name, log_dir):
+    """
+    Creates the log file for the analysis
+    """
+
+    loc = os.path.join(log_dir, file_name)
 
     if os.path.exists(loc):
         index_suffix = 0
@@ -50,16 +89,28 @@ def create_log_file(file_name, output_dir):
             index_suffix += 1
         loc = loc + "{0}".format(index_suffix)
 
-    
+    log = open(loc, "w")
+
+    log.write("ADMIRE PIPELINE LOG FILE\n")
+    log.write("------------------------\n")
+    log.write("{0}\n".format( time.asctime( time.localtime(time.time()) ) ))
+
+    return log
 
 
-    return loc
+if __name__ == "__main__":
+
+    if len(sys.argv) >= 2:
+        params, log = initialise(sys.argv[1], verbose=True)
+
+    else:
+        raise OSError("Parameter File not Supplied")
 
 
-print(create_log_file("ADMIRE.LOG", "/Users/abatten/PhD/admire/admire"))
+
+
 
 yt.mylog.setLevel(50)
-plt.rcParams['text.usetex'] = True
 
 data_dir = "/Users/abatten/PhD/data/AURORA/L012N0128/Aurora_L012N0128_FSN1.0_FESC0.5/data"
 files = glob.glob("/Users/abatten/PhD/borealis/notebooks/*_proj.h5")
