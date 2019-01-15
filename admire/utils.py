@@ -1,5 +1,6 @@
 
 import numpy as np
+import yt
 import astropy.units as u
 from astropy.cosmology import Planck15 as cosmo
 from astropy.cosmology import z_at_value
@@ -78,6 +79,28 @@ def get_redshifts_with_dist_spacing(z_low, z_high, dist_spacing):
 
     return redshifts
 
+
+def get_redshift_from_snapshot(snapshot):
+    """
+
+    Parameters
+    ----------
+    snapshot : string
+        The snapshot file
+
+    Return
+    ------
+    redshift : float
+        The redshift of the snapshot
+    """
+
+    if isinstance(snapshot, str):
+        ds = yt.load(snapshot)
+        redshift = ds["Redshift"]
+    else:
+        raise TypeError("Snapshot is not a string")
+
+    return redshift
 
 def get_idx(sample_z, z_arr):
     """
