@@ -1,12 +1,10 @@
 import os
 import sys
 import numpy as np
-import matplotlib as mpl
 import matplotlib.pyplot as plt
 import time
 import configparser as CP
 import yt
-import glob
 import h5py
 
 import utils
@@ -41,9 +39,9 @@ def read_params(param_path, verbose=False):
     params["OutputDataDir"] = config.get("Data", "OutputDataDir")
     params["ProjDir"] = config.get("Data", "ProjDir")
     params["ProjSuffix"] = config.get("Data", "ProjSuffix")
-    params["RedshiftMin"] = config.get("Analysis", "RedshiftMin")
-    params["RedshiftMax"] = config.get("Analysis", "RedshiftMax")
-    params["DistSpacing"] = config.get("Analysis", "DistSpacing")
+    params["RedshiftMin"] = config.getfloat("Analysis", "RedshiftMin")
+    params["RedshiftMax"] = config.getfloat("Analysis", "RedshiftMax")
+    params["DistSpacing"] = config.getfloat("Analysis", "DistSpacing")
     params["DistUnits"] = config.get("Analysis", "DistUnits")
     params["LogDir"] = config.get("Log", "LogDir")
     params["LogFileName"] = config.get("Log", "LogFileName" )
@@ -51,32 +49,6 @@ def read_params(param_path, verbose=False):
     params["MatplotlibBackend"] = config.get("General", "MatplotlibBackend")
 
     return params
-
-
-def create_log_file(log_dir, name):
-    """
-    Creates the log file for the analysis
-    """
-    
-    fn = os.path.join(log_dir, name)
-
-    # Check if LOG file already exists
-    # If so change file name to a unique name
-    if os.path.exists(fn):
-        index_suffix = 0
-        new_fn = fn + "{0:03d}".format(index_suffix)
-        while os.path.exists(new_fn):
-            index_suffix += 1
-            new_fn = fn + "{0:03d}".format(index_suffix)
-        fn = new_fn
-    log = open(fn, "w")
-
-    # Write header and date/time to the file
-    log.write("ADMIRE PIPELINE LOG FILE\n")
-    log.write("------------------------\n")
-    log.write("{0}\n".format(time.asctime(time.localtime(time.time()))))
-
-    return log
 
 
 def initialise(param_path, verbose=False):
@@ -104,7 +76,7 @@ def initialise(param_path, verbose=False):
     params = read_params(param_path, verbose)
 
     # Create the log file for script output
-    log = create_log_file(params["LogDir"], params["LogFileName"])
+    log = utils.create_log_file(params["LogDir"], params["LogFileName"])
 
     # Write the used parameters to the log file
     log.write("\n{0}\n{1}\n{0}\n".format("----------------", 
@@ -120,12 +92,48 @@ def initialise(param_path, verbose=False):
     return params, log
 
 
-def get_data_for_interpolation(z_sample, redshift_arr, projections,
-                               logfile, params):
+def get_data_for_interpolation(z_sample, redshift_arr, projections, logfile=None):
+    """
+    Finds the two projections with redshifts that are the nearest higher and 
+    nearest lower redshifts and extracts the
 
-   # z_snapshots = 
-    # The index in the
-    logfile.write("Getting Interpolation Data for redshift:{0}\n".format(z_sample))
+    Parameters
+    ----------
+    z_sample : float
+        The redshift of interest in the interpolation.
+
+    redshift_arr: array or array-like
+        The redshifts from the projections ordered by snapshot number.
+
+    projections : array or array-like
+        The filenames of the projections. These have the same indexing as
+        redshift_arr
+
+    logfile : 
+        The file to write the logs.
+
+
+    Returns
+    -------
+    data_low :
+        The data of the projection with the nearest lower redshift to z_sample.
+
+    dist_low :
+        The comoving distance to the projection with the nearest lower 
+        redshift to z_sample.
+
+    data_high :
+        The data of the projection with the nearest higher redshift to z_sample.
+
+    dist_high : 
+        The comoving distance to the projection with the nearest higher 
+        redshift to z_sample.
+    """
+
+    if logfile:
+        logfile.write("\n-----------------")
+        logfile.write("\nGetting Interpolation Data: z = {0:.5f}".format(z_sample))
+        logfile.write("\n-----------------\n")
 
     idx_low, idx_high = utils.get_idx(z_sample, redshift_arr)
     z_low, z_high = redshift_arr[idx_low], redshift_arr[idx_high]
@@ -133,26 +141,47 @@ def get_data_for_interpolation(z_sample, redshift_arr, projections,
     proj_low, proj_high = projections[idx_low], projections[idx_high]
     data_low, data_high = h5py.File(proj_low), h5py.File(proj_high)
 
-    logfile.write("{0:<10}{1:<4}{2:<10}{3:<4}\n".format("idx_low", idx_low,
-                                               "idx_high", idx_high))
+    if logfile:
+        logfile.write("{0:<10} {1:10}\n{2:<10} {3:10}\n".format("idx_low", idx_low,
+                                                                "idx_high", idx_high))
+        logfile.write("{0:<10} {1:10.5}\n{2:<10} {3:10.5}\n".format("z_low", z_low, 
+                                                                   "z_high", z_high))
+        logfile.write("{0:<10} {1:10.5}\n{2:<10} {3:10.5}\n".format("dist_low", dist_low,
+                                                                   "dist_high", dist_high))
+        logfile.write("{0:<10} {1}\n{2:<10} {3}".format("proj_low", proj_low, 
+                                                       "proj_high", proj_high))
 
     return data_low, dist_low, data_high, dist_high 
 
+
+def create_interpolated_projections(z_samples, redshifts, files, logfile=None):
+    for z in z_samples:
+        print("Getting data")
+        data_low, dist_low, data_high, dist_high = get_data_for_interpolation(z, redshifts, 
+                                                                              files, 
+                                                                              logfile=logfile)  
+
+        print("Doing interp")
+        interp = interpolate.linear_interp_2D(z, data_low, dist_low, data_high, dist_high, logfile=logfile)
+
+
+
 if __name__ == "__main__":
 
+    # The argument to the script is the parameter file
     if len(sys.argv) >= 2:
         params, log = initialise(sys.argv[1], verbose=True)
 
     else:
         raise OSError("Parameter File not Supplied")
 
-    #mpl.use(params["MatplotlibBackend"])
     yt.mylog.setLevel(params["YTLogLevel"])
 
-    files = glob.glob("{0}/*{1}".format(params["ProjDir"], params["ProjSuffix"]))
+    files = utils.join_path(params["ProjDir"], "*" + params["ProjSuffix"])
 
     log.write("Reading redshifts of projections\n")
     log.write("-----------------\n")
+
     if params["Verbose"]:
         print("Reading redshfits of projections")
         print("-----------------")
@@ -163,33 +192,36 @@ if __name__ == "__main__":
     log.write("{0:<25}{1}\n".format("File Name", "Redshift"))
     if params["Verbose"]:
         print("{0:<25}{1}".format("File Name", "Redshift"))
-    redshifts = np.empty(0)
+
+    snapshot_redshifts = np.empty(0)
+
     for snap in snapshot_list:
         fn = params["SnapshotDir"] + "/snapshot_0{0}/snap_0{0}.0.hdf5".format(snap)
         snapshot_z = utils.get_redshift_from_snapshot(fn)
-        redshifts = np.append(redshifts,snapshot_z)
+        snapshot_redshifts = np.append(snapshot_redshifts,snapshot_z)
         log.write("{0:<25}{1}\n".format("snap_0" + snap, snapshot_z))
         if params["Verbose"]:
             print("{0:<25}{1}".format("snap_0" + snap, snapshot_z))
-    data_low, dist_low, data_high, dist_high = get_data_for_interpolation(6.7, redshifts, files, log, params)  
 
-# The sample redshift to get an interpolated grid
-#sample_z = 6.7
+    if params["Verbose"]:
+        print("Calculating the redshifts needed for interpolation")
 
-# The index in the redshift array above and below the sample_z
-#lower_z_idx, higher_z_idx = utils.get_idx(sample_z, redshifts)
+    # Calculate the list of redshifts to interpolate from the Min/Max Redshift
+    # and the DistSpacing
+    redshifts_to_interp = utils.get_redshifts_with_dist_spacing(params["RedshiftMin"], 
+                                                                  params["RedshiftMax"], 
+                                                                  params["DistSpacing"],
+                                                                  logfile=log)
+    if params["Verbose"]:
+        print("List of Redshifts: {0}".format(redshifts_to_interp))
 
-# The redshift of the snapshots above and below the sample_z
-#lower_z, higher_z = redshifts[higher_z_idx], redshifts[lower_z_idx]
+    # Create the interpolated projections, then plot and save them to .h5 files
+    create_interpolated_projections(redshifts_to_interp, snapshot_redshifts, files, logfile=log)
 
-# The comoving distance of the snapshots above and below the sample_z
-#lower_dist, higher_dist = utils.z_to_mpc(lower_z), utils.z_to_mpc(higher_z)
+#    for i in range(len(interp_proj_redshifts)):
+#        print("Getting data")
+#        data_low, dist_low, data_high, dist_high = get_data_for_interpolation(interp_proj_redshifts[i], redshifts, files, log)  
 
-# The snapshots that are above and below in redshift of the sample_z
-#lower_snap, higher_snap = files[lower_z_idx], files[higher_z_idx]
-
-# The snapshot_data 
-#lower_data, higher_data = h5py.File(lower_snap), h5py.File(higher_snap)
-
-#sample_interp = interpolate.linear_interp_2D(sample_z, lower_data, lower_dist, higher_data, higher_dist)
+#        print("Doing interp")
+#        interp = interpolate.linear_interp_2D(interp_proj_redshifts[i], data_low, dist_low, data_high, dist_high, logfile=log)
 
