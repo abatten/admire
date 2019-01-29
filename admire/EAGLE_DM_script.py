@@ -5,7 +5,8 @@ import matplotlib.pyplot as plt
 import configparser as CP
 import yt
 import h5py
-
+import time
+import random
 import utils
 from utils import wlog
 import interpolate
@@ -162,7 +163,7 @@ def get_data_for_interpolation(z_sample, redshift_arr, projections, logfile=None
     return data_low, dist_low, data_high, dist_high 
 
 
-def create_interpolated_projections(z_samples, redshifts, files, params, logfile=None):
+def create_interpolated_projections(z_samples, redshifts, files, params, logfile=None, verbose=False):
     for z in z_samples:
         (data_low, dist_low, 
          data_high, dist_high) = get_data_for_interpolation(z, redshifts, files, logfile=logfile)  
@@ -178,7 +179,7 @@ def create_interpolated_projections(z_samples, redshifts, files, params, logfile
 
         with h5py.File(output_file, "w") as h5f:
             if logfile:
-                wlog("Creating Interpolated Slice: {0}".format(output_file), logfile, verb)
+                wlog("Creating Interpolated Slice: {0}".format(output_file), logfile, verbose)
             h5f.create_dataset("DM", data=interp.value)
 
 
@@ -247,9 +248,50 @@ if __name__ == "__main__":
         projs = utils.join_path(params["ProjDir"],  params["InterpFileName"] + "*")
 
 
-    wlog("Creating Plots", log, verb, t=True)
+#    wlog("Creating Plots", log, verb, t=True)
+#    for i in range(len(projs)):
+#        with h5py.File(projs[i], "r") as ds:
+#            wlog("Plotting {0}".format(projs[i]), log, verb, u=True)
+
+
+ #           data1D = utils.reshape_2D_to_1D(ds["DM"], log, verb)
+
+ #           binnum = 100
+#            bins = np.linspace(18, 23, binnum)
+#
+            #f, err = fit.lognormal(data1D, log, verb, boot=False)
+#            wlog("Creating DM Histogram", log, verb)
+#            fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,6))
+#            ax = plot.dm_hist(data1D, bins, passed_ax=ax)
+
+            #ax.hist(data1D, density=True, bins=bins)
+            #ax.plot(bins, stats.lognorm.pdf(bins, f[0], f[1], f[2]), "r--")
+            #ax.set_xlim(bins[0], bins[-1])
+            #ax.set_xlabel(r"$\rm{DM\ pc\ cm^{-3}}$", fontsize=18)
+            #ax.set_ylabel(r"$\rm{PDF}$")
+            #statfit = stats.lognorm.stats(f[0],f[1],f[2])
+            #ax.text(0.7, 0.80, r"$\sigma^2 = {0:.3f}$".format(statfit[1]), transform=ax.transAxes, fontsize=16)
+            #ax.text(0.7, 0.75, r"$\mu = {0:.3f}$".format(f[0]), transform=ax.transAxes, fontsize=16)
+            #ax.text(0.7, 0.70, r"$\mu = {0:.3f}$".format(np.log(f[2])), transform=ax.transAxes, fontsize=16)
+ #           plt.tight_layout()
+#            wlog("Saving Figure", log, verb)
+#            plt.savefig("{0}/TEST_EAGLE_OUT_{1}.png".format(params["PlotDir"], i))
+#            plt.close()
+    redshifts_to_interp = utils.get_redshifts_with_dist_spacing(params["RedshiftMin"], 
+                                                                params["RedshiftMax"], 
+                                                                params["DistSpacing"])
+
+
+    wlog("Performing Mirror and Rotations", log, verb, t=True)
+
+    dm_bins = np.linspace(0, 1000, 10000)
+
+    complete_1D_data = np.empty(0)
+    complete_redshifts = np.empty(0)
+
     for i in range(len(projs)):
         with h5py.File(projs[i], "r") as ds:
+
             wlog("Plotting {0}".format(projs[i]), log, verb, u=True)
 
 
@@ -261,37 +303,27 @@ if __name__ == "__main__":
             #f, err = fit.lognormal(data1D, log, verb, boot=False)
             wlog("Creating DM Histogram", log, verb)
             fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(6,6))
-            ax.hist(data1D, density=True, bins=bins)
-            #ax.plot(bins, stats.lognorm.pdf(bins, f[0], f[1], f[2]), "r--")
-            ax.set_xlim(bins[0], bins[-1])
-            ax.set_xlabel(r"$\rm{DM\ pc\ cm^{-3}}$", fontsize=18)
-            ax.set_ylabel(r"$\rm{PDF}$")
-            #statfit = stats.lognorm.stats(f[0],f[1],f[2])
-            #ax.text(0.7, 0.80, r"$\sigma^2 = {0:.3f}$".format(statfit[1]), transform=ax.transAxes, fontsize=16)
-            #ax.text(0.7, 0.75, r"$\mu = {0:.3f}$".format(f[0]), transform=ax.transAxes, fontsize=16)
-            #ax.text(0.7, 0.70, r"$\mu = {0:.3f}$".format(np.log(f[2])), transform=ax.transAxes, fontsize=16)
+            ax = plot.dm_hist(data1D, bins, passed_ax=ax)
             plt.tight_layout()
             wlog("Saving Figure", log, verb)
             plt.savefig("{0}/TEST_EAGLE_OUT_{1}.png".format(params["PlotDir"], i))
             plt.close()
 
 
-    wlog("Performing Mirror and Rotations", log, verb, t=True)
 
-    for i in range(len(projs)-1):
-        with h5py.File(projs[i], "r") as ds:
             wlog("MIRROT: {0}".format(projs[i]), log, verb)
+
             if i == 0:
 
                 with h5py.File("MIRROT_{0}.h5".format(i), "w") as mfn:
                     mfn.create_dataset("DM", data=ds["DM"])
+                    mfn.create_dataset("Redshift", data=redshifts_to_interp[i])
 
             else:
-                prev_file = "MIRROT_{0}.h5".format(i-1)
-                
+                prev_file = "MIRROT_{0}.h5".format(i-1)   
 
                 with h5py.File(prev_file, "r") as prev:
-                    mir, rot = mirrot_options["r90"]
+                    mir, rot = mirrot_options[random.choice(list(mirrot_options.keys()))]
 
                     wlog("Mirrot Selection: Mir {0}  Rot: {1} degrees".format(mir, 90*rot), log, verb)
 
@@ -300,8 +332,14 @@ if __name__ == "__main__":
                     with h5py.File("MIRROT_{0}.h5".format(i), "w") as mfn:
                         data = prev["DM"] + mirrot_data
                         mfn.create_dataset("DM", data=data)
+                        mfn.create_dataset("Redshift", data=redshifts_to_interp[i])
+                        data1D = utils.reshape_2D_to_1D(data, log, verb)
+                        complete_1D_data = np.append(complete_1D_data, data1D)
 
 
+                        complete_redshifts = np.append(complete_redshifts, [redshifts_to_interp[i]]*len(data1D))
+                    
+                        #plot.dm_hist(data1D, bins=dm_bins, fn="MIRROT_{0}.png".format(i))
 
 
     
@@ -315,4 +353,7 @@ if __name__ == "__main__":
                           'mr180': (1, 2),
                           'mr270': (1, 3)
                           }
+    wlog("Creating Master Plot", log, verb, t=True)
+    plot.dmz_2dhist(complete_redshifts, complete_1D_data, bins=np.linspace(0, 0.1, 15))
 
+    wlog(time.asctime(time.localtime(time.time())), log, verb, t=True)
