@@ -14,6 +14,7 @@ import mirrot
 import plot
 import fit
 from scipy import stats
+import json
 
 plt.rcParams['text.usetex'] = True
 
@@ -40,38 +41,50 @@ def read_params(param_path):
     config = CP.ConfigParser()
     config.read(params["ParamPath"])
 
-    params["Verbose"] = config.getboolean("General", "Verbose")  
-    params["AutoRun"] = config.getboolean("General", "AutoRun")
-    params["ProgressBar"] = config.getboolean("General", "ProgressBar")
+    params["Verbose"] = config.getboolean("General", "Verbose")
+#    params["AutoRun"] = config.getboolean("General", "AutoRun")
+#    params["ProgressBar"] = config.getboolean("General", "ProgressBar")
 
-    params["SnapshotDir"] = config.get("Data", "SnapshotDir")
+    params["ColDensMapDir"] = config.get("Data", "ColDensMapDir")
     params["OutputDataDir"] = config.get("Data", "OutputDataDir")
     params["ProjDir"] = config.get("Data", "ProjDir")
-    params["ProjSuffix"] = config.get("Data", "ProjSuffix")
+    params["ColDensMapSuffix"] = config.get("Data", "ColDensMapSuffix")
+    params["ColDensMapZVals"] = json.loads(config.get("Data", "ColDensMapZVals"))
 
-    params["CreateInterpProj"] = config.getboolean("Interpolate", "InterpSnapshots")
+    params["InterpMaps"] = config.getboolean("Interpolate", "InterpMaps")
     params["InterpFileName"] = config.get("Interpolate", "InterpFileName")
+
     params["RedshiftMin"] = config.getfloat("Analysis", "RedshiftMin")
     params["RedshiftMax"] = config.getfloat("Analysis", "RedshiftMax")
     params["DistSpacing"] = config.getfloat("Analysis", "DistSpacing")
     params["DistUnits"] = config.get("Analysis", "DistUnits")
 
     params["PlotDir"] = config.get("Plot", "PlotDir")
-    params["MakeProjMap"] : config.get()
-    params["ProjPlotName"] = config.get("Plot", "ProjMapFileName")
-    params["ProjCmap"] = config.get("Plot", "ProjCmap")
-    params["ProjVmax"] = config.getfloat("Plot", "ProjVmax")
-    params["ProjVmin"] = config.getfloat("Plot", "ProjVmin")
+    params["CreateColDensMap"] : config.getboolean("Plot", "CreateColsDensMap")
+    params["ColDensMapFileName"] = config.get("Plot", "ColDensMapFileName")
+    params["ColDensCmap"] = config.get("Plot", "ColDensCmap")
+    params["ColDensVmax"] = config.getfloat("Plot", "ColDensVmax")
+    params["ColDensVmin"] = config.getfloat("Plot", "ColDensVmin")
+    params["CreateDMPdf"] = config.getboolean("Plot", "CreateDMPdf")
+    params["DMPdfFileName"] = config.get("Plot", "DMPdfFileName")
+    params["CreateMastHist"] = config.getboolean("Plot", "CreateMastHist")
+    params["MastHistFileName"] = config.get("Plot", "MastHistFileName")
     params["MatplotlibBackend"] = config.get("Plot", "MatplotlibBackend")
+
+    params["FitLogNorm"] = config.getboolean("Fit", "FitLogNorm")
+    params["PerformBootstrap"] = config.getboolean("Fit", "PerformBootstrap")
 
     params["LogDir"] = config.get("Log", "LogDir")
     params["LogFileName"] = config.get("Log", "LogFileName")
     params["YTLogLevel"] = config.getint("Log", "YTLogLevel")
 
+    params["CreateMastFile"] = config.getboolean("MasterFile", "CreateMastFile")
+    params["MastFileName"] = config.get("MasterFile", "MastFileName")
+
     return params
 
 
-def initialise(param_path, verbose=False):
+def initialise(param_path):
     """
     Initialise the pipeline by reading the parameter file and set
     up the log file
@@ -80,9 +93,6 @@ def initialise(param_path, verbose=False):
     ----------
     param_path : string
         The path to the parameter file for the script
-
-    verbose : boolean
-    Run the script verbosely. Default: False
 
     Returns
     -------
@@ -96,20 +106,22 @@ def initialise(param_path, verbose=False):
     params = read_params(param_path)
 
     # Create the log file for script output
-    log = utils.create_log_file(params["LogDir"], params["LogFileName"])
+    log = utils.create_log_file(params["LogDir"],
+                                params["LogFileName"],
+                                params["Verbose"])
 
     # Write the used parameters to the log file
-    wlog("Input Parameters", log, verbose, t=True)
+    wlog("Input Parameters", log, params["Verbose"], t=True)
 
     for key in list(params.keys()):
-        wlog("{0:<25} {1}".format(key, params[key]), log, verbose)
+        wlog("{0:<25} {1}".format(key, params[key]), log, params["Verbose"])
 
     return params, log
 
 
 def get_data_for_interpolation(z_sample, redshift_arr, projections, logfile=None, verbose=True):
     """
-    Finds the two projections with redshifts that are the nearest higher and 
+    Finds the two projections with redshifts that are the nearest higher and
     nearest lower redshifts and extracts the
 
     Parameters
@@ -124,7 +136,7 @@ def get_data_for_interpolation(z_sample, redshift_arr, projections, logfile=None
         The filenames of the projections. These have the same indexing as
         redshift_arr
 
-    logfile : 
+    logfile :
         The file to write the logs.
 
 
@@ -134,14 +146,14 @@ def get_data_for_interpolation(z_sample, redshift_arr, projections, logfile=None
         The data of the projection with the nearest lower redshift to z_sample.
 
     dist_low :
-        The comoving distance to the projection with the nearest lower 
+        The comoving distance to the projection with the nearest lower
         redshift to z_sample.
 
     data_high :
         The data of the projection with the nearest higher redshift to z_sample.
 
-    dist_high : 
-        The comoving distance to the projection with the nearest higher 
+    dist_high :
+        The comoving distance to the projection with the nearest higher
         redshift to z_sample.
     """
 
@@ -160,7 +172,7 @@ def get_data_for_interpolation(z_sample, redshift_arr, projections, logfile=None
         wlog("{0:<10} {1:10.5}\n{2:<10} {3:10.5}\n".format("dist_low", dist_low,"dist_high", dist_high), logfile, verbose)
         wlog("{0:<10} {1}\n{2:<10} {3}".format("proj_low", proj_low, "proj_high", proj_high), logfile, verbose)
 
-    return data_low, dist_low, data_high, dist_high 
+    return data_low, dist_low, data_high, dist_high
 
 
 def create_interpolated_projections(z_samples, redshifts, files, params, logfile=None, verbose=False):
@@ -187,38 +199,69 @@ if __name__ == "__main__":
 
     # The argument to the script is the parameter file
     if len(sys.argv) >= 2:
-        params, log = initialise(sys.argv[1], verbose=True)
+        if os.path.exists(sys.argv[1]):
+            params, log = initialise(sys.argv[1])
+        else:
+            raise OSError("Could not find file: {0}".format(sys.argv[1]))
 
     else:
         raise OSError("Parameter File not Supplied")
 
+    # Set the verbose level of the script
     yt.mylog.setLevel(params["YTLogLevel"])
     verb = params["Verbose"]
 
+    wlog("Reading Column Density Map Data", log, verb, t=True)
 
-    files = utils.join_path(params["ProjDir"], "*" + params["ProjSuffix"])
+    npz_format = [".npz", "npz"]
+    h5_format = [".h5", "h5"]
 
-    wlog("Reading Data", log, verb, t=True)
-    snap_redshifts = [2.0, 1.0, 0.0]
+    # Need to speficy the redshifts of the npz files
+    ColDensMapsZVals = params["ColDensMapZVals"]
 
-    for i in range(len(files)):
-        fn = files[i].split("/")[-1]
-        fn_ext = fn.split(".")[-1]
-        if fn_ext == "npz":
-            utils.convert_npz_to_h5(files[i], "{0}/{1}.h5".format(params["OutputDataDir"], fn), 
-                                                           snap_redshifts[i], log, verb)
-            files[i] = "{0}/{1}.h5".format(params["OutputDataDir"], fn) 
+    # If the ColDens Maps are npz files convert them to hdf5 files
+    if params["ColDensMapSuffix"] in npz_format:
+        wlog("Column Density Maps in .npz format", log, verb)
+        wlog("Converting files to .h5 files", log, verb)
+        ColDensMaps = utils.glob_files(params["ColDensMapDir"],
+                                        "*" + params["ColDensMapSuffix"])
+
+        for i in range(len(ColDensMaps)):
+            old_fn = ColDensMaps[i].split(".npz")[0].split("/")[-1]
+            new_fn = "{0}/{1}.h5".format(params["OutputDataDir"], old_fn)
+            redshift = np.array(ColDensMapsZVals[i])
+
+            wlog("Converting {0} to .h5 format".format(old_fn), log, verb)
+            utils.convert_npz_to_h5(ColDensMaps[i], new_fn, z=redshift)
+            wlog("Created: {0}".format(new_fn), log, verb)
+
+            # Change file path to the path of the new .h5 file
+            ColDensMaps[i] = new_fn
+
+    elif ColDensMapSuffix in h5_format:
+        wlog("Column Density Maps in .h5 format", log, verb)
+        ColDensMaps = utils.glob_files(params["ColDensMapDir"],
+                                       "*" + params["ColDensMapSuffix"])
+
+    else:
+        raise TypeError("Unrecognised format type. ColDensMaps should be in\
+                        .npz or .h5 format.")
+        sys.exit(1)
 
 
+    # Read the redshifts 
     wlog("Reading redshifts of projections", log, verb, u=True)
     wlog("{0:<10} {1:<50}".format("Redshift", "Filename"), log, verb)
+    for m in ColDensMaps:
+        with h5py.File(m, "r") as ds:
+            z = ds["Header"].attrs["Redshift"]
+            fn = m.split("/")[-1]
+            wlog("{0:<10.5f} {1:<50}".format(z, fn), log, verb)
 
-    for i in range(len(files)):
-        wlog("{0:<10.5f} {1:<50}".format(snap_redshifts[i], files[i]), log, verb)
 #    # Get the redshifts of the snapshots
 #    snapshot_redshifts = np.empty(0)
 #    for snap in snapshot_list:
-#        fn = params["SnapshotDir"] + "/snapshot_0{0}/snap_0{0}.0.hdf5".format(snap)
+#        fn = params["ColDensMapDir"] + "/snapshot_0{0}/snap_0{0}.0.hdf5".format(snap)
 #        snapshot_z = utils.get_redshift_from_snapshot(fn)
 #        snapshot_redshifts = np.append(snapshot_redshifts,snapshot_z)
 
@@ -226,26 +269,26 @@ if __name__ == "__main__":
 #        if params["Verbose"]:
 #            print("{0:<25}{1}".format("snap_0" + snap, snapshot_z))
 
-    if params["CreateInterpProj"]: 
+    if params["InterpMaps"]:
         wlog("Calculating the redshifts needed for interpolation", log, verb, u=True)
 
         # Calculate the list of redshifts to interpolate from the Min/Max Redshift
         # and the DistSpacing
-        redshifts_to_interp = utils.get_redshifts_with_dist_spacing(params["RedshiftMin"], 
-                                                                    params["RedshiftMax"], 
+        redshifts_to_interp = utils.get_redshifts_with_dist_spacing(params["RedshiftMin"],
+                                                                    params["RedshiftMax"],
                                                                     params["DistSpacing"])
         wlog("List of Redshifts:\n{0}".format(redshifts_to_interp), log, verb)
 
         # Create the interpolated projections, then plot and save them to .h5 files
-        create_interpolated_projections(redshifts_to_interp, 
-                                        snap_redshifts,
+        create_interpolated_projections(redshifts_to_interp,
+                                        ColDensMapZVals,
                                         files, params, logfile=log,
                                         verbose=verb)
 
-        projs = utils.join_path(params["OutputDataDir"], params["InterpFileName"] + "*")
+        projs = utils.glob_files(params["OutputDataDir"], params["InterpFileName"] + "*")
 
     else:
-        projs = utils.join_path(params["ProjDir"],  params["InterpFileName"] + "*")
+        projs = utils.glob_files(params["ProjDir"],  params["InterpFileName"] + "*")
 
 
 #    wlog("Creating Plots", log, verb, t=True)
@@ -277,8 +320,8 @@ if __name__ == "__main__":
 #            wlog("Saving Figure", log, verb)
 #            plt.savefig("{0}/TEST_EAGLE_OUT_{1}.png".format(params["PlotDir"], i))
 #            plt.close()
-    redshifts_to_interp = utils.get_redshifts_with_dist_spacing(params["RedshiftMin"], 
-                                                                params["RedshiftMax"], 
+    redshifts_to_interp = utils.get_redshifts_with_dist_spacing(params["RedshiftMin"],
+                                                                params["RedshiftMax"],
                                                                 params["DistSpacing"])
 
 
@@ -290,6 +333,7 @@ if __name__ == "__main__":
     complete_redshifts = np.empty(0)
 
     for i in range(len(projs)):
+        print(i, len(projs), len(redshifts_to_interp))
         with h5py.File(projs[i], "r") as ds:
 
             wlog("Plotting {0}".format(projs[i]), log, verb, u=True)
@@ -315,12 +359,12 @@ if __name__ == "__main__":
 
             if i == 0:
 
-                with h5py.File("MIRROT_{0}.h5".format(i), "w") as mfn:
+                with h5py.File("{1}/MIRROT_FILE_{0}.h5".format(i, params["OutputDataDir"]), "w") as mfn:
                     mfn.create_dataset("DM", data=ds["DM"])
                     mfn.create_dataset("Redshift", data=redshifts_to_interp[i])
 
             else:
-                prev_file = "MIRROT_{0}.h5".format(i-1)   
+                prev_file = "{1}/MIRROT_FILE_{0}.h5".format(i-1, params["OutputDataDir"])
 
                 with h5py.File(prev_file, "r") as prev:
                     mir, rot = mirrot_options[random.choice(list(mirrot_options.keys()))]
@@ -329,7 +373,7 @@ if __name__ == "__main__":
 
                     mirrot_data = mirrot.mirrot(ds["DM"], mir=mir, rot=rot)
 
-                    with h5py.File("MIRROT_{0}.h5".format(i), "w") as mfn:
+                    with h5py.File("{1}/MIRROT_FILE_{0}.h5".format(i, params["OutputDataDir"]), "w") as mfn:
                         data = prev["DM"] + mirrot_data
                         mfn.create_dataset("DM", data=data)
                         mfn.create_dataset("Redshift", data=redshifts_to_interp[i])
@@ -338,11 +382,9 @@ if __name__ == "__main__":
 
 
                         complete_redshifts = np.append(complete_redshifts, [redshifts_to_interp[i]]*len(data1D))
-                    
-                        #plot.dm_hist(data1D, bins=dm_bins, fn="MIRROT_{0}.png".format(i))
+                        plot.dm_hist(data1D, bins=dm_bins, fn="{1}/MIRROT_FILE_{0}.png".format(i, params["PlotDir"]))
 
 
-    
 
 
         mirrot_options = {'r90': (0, 1),
@@ -354,6 +396,6 @@ if __name__ == "__main__":
                           'mr270': (1, 3)
                           }
     wlog("Creating Master Plot", log, verb, t=True)
-    plot.dmz_2dhist(complete_redshifts, complete_1D_data, bins=np.linspace(0, 0.1, 15))
+    plot.dmz_2dhist(complete_redshifts, complete_1D_data, bins=(len(redshifts_to_interp), 100))
 
     wlog(time.asctime(time.localtime(time.time())), log, verb, t=True)
