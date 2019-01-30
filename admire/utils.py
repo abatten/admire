@@ -73,7 +73,7 @@ def mpc_to_z(mpc):
 
     Parameters
     ----------
-    mpc : 
+    mpc :
 
     Returns
     -------
@@ -111,7 +111,7 @@ def num_slices_between_redshifts(z_low, z_high, dist_spacing, logfile=None):
     return int(((dist_high - dist_low) / dist_spacing).round())
 
 
-def get_redshifts_with_dist_spacing(z_low, z_high, dist_spacing, 
+def get_redshifts_with_dist_spacing(z_low, z_high, dist_spacing,
                                     logfile=None, verbose=False):
     """
     Get the list of redshifts with a fixed comoving distance between them.
@@ -144,7 +144,7 @@ def get_redshifts_with_dist_spacing(z_low, z_high, dist_spacing,
     dist_low = z_to_mpc(z_low)
 
     redshifts = np.empty(0)
-    
+
     if logfile:
         wlog("{0:16}{1:16}".format("Redshift", "Comoving Dist"), logfile, verbose)
 
@@ -200,18 +200,18 @@ def get_idx(sample_z, z_arr):
     return lower_z_idx, higher_z_idx
 
 
-def join_path(directory, filename):
+def glob_files(directory, filename):
     """
     Joins the path of a directory and the filename of a file
     """
-    return glob.glob(os.path.join(directory, filename))
+    return sorted(glob.glob(os.path.join(directory, filename)))
 
 
-def create_log_file(log_dir, name):
+def create_log_file(log_dir, name, verbose=False):
     """
     Creates the log file for the analysis
     """
-    
+
     fn = os.path.join(log_dir, name)
 
     # Check if LOG file already exists
@@ -226,26 +226,40 @@ def create_log_file(log_dir, name):
     log = open(fn, "w")
 
     # Write header and date/time to the file
-    wlog("ADMIRE PIPELINE LOG FILE", log, u=True)
-    wlog(time.asctime(time.localtime(time.time())), log, t=True)
+    wlog("ADMIRE PIPELINE LOG FILE", log, verbose, u=True)
+    wlog(time.asctime(time.localtime(time.time())), log, verbose, t=True)
 
     return log
 
 
 
-def convert_npz_to_h5(npz_file, fn, z=0, logfile=None, verbose=False):
-    npz_fn = npz_file.split("/")[-1]
-    wlog("Converting {0} to .h5 file".format(npz_fn), log=logfile, verbose=verbose)
+def convert_npz_to_h5(npz_file, fn, z=None):
+    """
+    Converts a .npz file to a .h5 file.
 
+    Parameters
+    ----------
+    npz_file : str
+
+    fn : str
+        File
+
+    z : float
+        The redshift of the npz file. This will as the redshift
+    """
     with np.load(npz_file, "r") as ds:
-
-        DM = ds["arr_0"] 
+        DM = ds["arr_0"]
         with h5.File(fn, "w") as h5_file:
             h5_file.create_dataset("DM", data=DM)
-            h5_file.create_dataset("Redshift", data=z)
-            h5_file["DM"].attrs["units"] = "pc cm**-3"
-            h5_file["DM"].attrs["VarDescription"] = "Dispersion Measure. The electron column density DM = n_e * dl"
-            h5_file["Redshift"].attrs["VarDescription"] = "Redshift of the snapshot"
+            h5_file["DM"].attrs["Units"] = "pc cm**-3"
+            h5_file["DM"].attrs["VarDescription"] = "Dispersion Measure. Electron column density DM = n_e * dl"
+            if z is not None:
+                #h5_file.create_dataset("Redshift", data=z)
+                header = h5_file.create_group("Header")
+                header.attrs["Redshift"] = z
+                #h5_file["Redshift"].attrs["VarDescription"] = "Redshift of the column density map"
+
+    return None
 
 def reshape_2D_to_1D(data, logfile=None, verbose=False):
     if logfile:
