@@ -9,20 +9,69 @@ from astropy.cosmology import Planck15 as cosmo
 from astropy.cosmology import z_at_value
 
 
-def wlog(text, log, verbose=False, t=False, u=False):
+def wlog(text, log=None, verbose=False, t=False, u=False, n=False):
+    """
+    Write text to a log file and/or the console with different stylings.
+
+    Parameters
+    ----------
+    text : string
+        The text to be printed to the console and/or the log file.
+
+    log : log file or None
+        The file to print the text.
+        Default: None
+
+    verbose : boolean
+        If true, print the text to the console.
+        Default: False
+
+    t : boolean
+        "Title": Create text with surrounding asterisks.
+        Default: False
+
+        Example:
+
+        ***************
+        This is a title
+        ***************
+
+    u : boolean
+        "Underline": Create text that is underlined with dashes.
+        Default: False
+
+        Example:
+
+        This is underlined
+        ------------------
+
+    n : boolean
+        "New Line": Create text with a blank line added above the text.
+        Default : False
+
+        Example:
+
+
+        This has a new line added above.
+    """
 
     chars = len(text)
     if t:
         t_special = "*" * chars
         out = "\n{0}\n{1}\n{0}".format(t_special, text)
     elif u:
+
         u_special = "-" * chars
         out = "\n{0}\n{1}".format(text, u_special)
+
+    elif n:
+        out = "\n{0}".format(text)
 
     else:
         out = text
 
-    log.write("{0}\n".format(out))
+    if log:
+        log.write("{0}\n".format(out))
     vprint(out, verbose=verbose)
     return None
 
@@ -37,6 +86,7 @@ def vprint(out, verbose=True):
     ----------
     out : object
         The object to potentially be printed
+
     verbose : boolean
         Whether the print function should actually occur.
     """
@@ -182,22 +232,40 @@ def get_redshift_from_snapshot(snapshot):
     return redshift
 
 
-def get_idx(sample_z, z_arr):
+def get_idx(sample, array):
     """
-    Get the indicies in the redshift array that are below
-    and above the sample_z
+    Get the indicies in an  array that are below
+    and above a sample value.
+
+    Parameters
+    ----------
+    sample : float or int
+
+    array : array or array like
+
+    Returns
+    -------
+    lower_idx, higher_idx
+
+    Example
+    -------
+    >>> import numpy as np
+    >>> arr = np.array([0, 1, 2, 3, 4, 5])
+    >>> samp = 2.5
+    >>> get_idx(samp, arr)
+    2, 3 
     """
 
-    state = sample_z >= z_arr  # boolean array
+    state = sample >= array  # boolean array
     # Find the index where the first "True"
     # This is the first redshift idx lower than the sample_z
-    lower_z_idx = np.where(state)[0][0]
+    lower_idx = np.where(state)[0][0]
 
     # Find the index where the first "False"
     # This is the first redshift idx lower than the sample_z
-    higher_z_idx = np.where(np.logical_not(state))[0][-1]
+    higher_idx = np.where(np.logical_not(state))[0][-1]
 
-    return lower_z_idx, higher_z_idx
+    return lower_idx, higher_idx
 
 
 def glob_files(directory, filename):
@@ -250,20 +318,38 @@ def convert_npz_to_h5(npz_file, fn, z=None):
     with np.load(npz_file, "r") as ds:
         DM = ds["arr_0"]
         with h5.File(fn, "w") as h5_file:
-            h5_file.create_dataset("DM", data=DM)
-            h5_file["DM"].attrs["Units"] = "pc cm**-3"
-            h5_file["DM"].attrs["VarDescription"] = "Dispersion Measure. Electron column density DM = n_e * dl"
+            create_dm_dataset(h5_file, DM)
+            #h5_file.create_dataset("DM", data=DM)
+            #h5_file["DM"].attrs["Units"] = "pc cm**-3"
+            #h5_file["DM"].attrs["VarDescription"] = "Dispersion Measure. Electron column density DM = n_e * dl"
             if z is not None:
+                create_redshift_attrs(h5_file, z)
                 #h5_file.create_dataset("Redshift", data=z)
-                header = h5_file.create_group("Header")
-                header.attrs["Redshift"] = z
+             #   header = h5_file.create_group("Header")
+              #  header.attrs["Redshift"] = z
                 #h5_file["Redshift"].attrs["VarDescription"] = "Redshift of the column density map"
 
     return None
 
 def reshape_2D_to_1D(data, logfile=None, verbose=False):
+    """
+    Reshape a 2D array into a 1D array.
+    """
     if logfile:
         wlog("Reshaping 2D data to 1D data", logfile, verbose)
 
     xsize, ysize = data.shape[0], data.shape[1]
     return np.reshape(data, (xsize * ysize))
+
+
+def create_dm_dataset(ds, val):
+    ds.create_dataset("DM", data=val)
+    ds["DM"].attrs["Units"] = "pc cm**-3"
+    ds["DM"].attrs["VarDescription"] = "Dispersion Measure. Electron column density DM = n_e * dl"
+    return None
+
+def create_redshift_attrs(ds, val):
+    header = ds.create_group("Header")
+    header.attrs["Redshift"] = val
+    return None
+
