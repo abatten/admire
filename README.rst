@@ -2,4 +2,4 @@
 ADMIRE
 ======
 
-<A word> Dispersion Measure Into REdshift
+<A word> Dispersion Measure Into Redshift Estimates
