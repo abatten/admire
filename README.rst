@@ -1,3 +1,5 @@
+|PyPI| |Python| |License| |Coverage|
+
 ======
 ADMIRE
 ======
