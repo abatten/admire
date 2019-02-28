@@ -249,11 +249,11 @@ def get_idx(sample, array):
 
     Example
     -------
-    >>> import numpy as np
-    >>> arr = np.array([0, 1, 2, 3, 4, 5])
-    >>> samp = 2.5
-    >>> get_idx(samp, arr)
-    2, 3 
+        >>> import numpy as np
+        >>> arr = np.array([0, 1, 2, 3, 4, 5])
+        >>> samp = 2.5
+        >>> get_idx(samp, arr)
+        2, 3
     """
 
     state = sample >= array  # boolean array
