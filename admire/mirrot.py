@@ -1,4 +1,5 @@
 import numpy as np
+import random
 from collections import Counter
 
 def options():
@@ -11,6 +12,12 @@ def options():
                'mr270': (1, 3)
               }
     return options
+
+
+def mirror_rotate_options():
+    options = [(0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 2), (1, 3)]
+    return options
+
 
 
 def gen_mirrot_sequence(length):
@@ -97,7 +104,7 @@ def perform_transform(array, transformation=(0, 0, 0, 0)):
     if mir == 0:
         pass
     elif mir == 1:
-        array = _mirror(array, mir)
+        array = _mirror(array)
     else:
         raise ValueError("""Value for mirror must be 0 or 1. Instead recieved
             mirror value: {0}""".format(mir))
@@ -134,7 +141,7 @@ def _mirror(array):
 
 def _rotate(array, rot=0):
     """
-    Rotate a 2D numpy array clockwise in a multiple of 90 degrees.
+    Rotate a 2D numpy array anti-clockwise in a multiple of 90 degrees.
 
     Parameters
     ----------
@@ -165,20 +172,28 @@ def _translate(array, transx=0, transy=0):
         The number of positions to translate along the x axis. Defaut: 0
 
     transy: int
-        The number of positions to translate along the y axis. Default 0
+        The number of positions to translate along the y axis. Default: 0
 
     Returns
     -------
     numpy.ndarray
         The translated array
     """
-    translated_array = np.roll(array, (transx, transy), axis=(0, 1))
+    translated_array = np.roll(array, (transx, transy), axis=(1, 0))
     return translated_array
 
 
-def gen_random_transform():
+def gen_random_transform(min_trans, max_trans):
     """
     Generates a random transformation
+
+    Parameters
+    ----------
+    min_trans: int
+        The minimum value for the x and y translations.
+
+    max_trans: int
+        The maximum value for the x and y translations
 
     Returns
     -------
@@ -191,6 +206,11 @@ def gen_random_transform():
         positions to translate the array along the x and y axis.
 
     """
+    mir, rot = random.choice(mirror_rotate_options())
+    transx = random.randint(min_trans, max_trans)
+    transy = random.randint(min_trans, max_trans)
+
+    transform = (mir, rot, transx, transy)
 
     return transform
 
@@ -219,9 +239,8 @@ def gen_transform_sequence(seq_length, min_trans, max_trans):
         raise ValueError("""seq_length must be of type int. Instead seq_length
             hase type: {0}""".format(type(seq_length)))
 
-
-    seq
-
+    seq = []
     for i in range(seq_length):
-        
+        seq.append(gen_random_transform(min_trans, max_trans))
+
     return seq
