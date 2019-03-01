@@ -11,6 +11,10 @@ def linear_interp_2D(z_sample, map_low, map_high, logfile=None, verbose=False):
 
     map_low :
 
+
+    Returns:
+    --------
+    Interpolated Map
     """
 
     if logfile:
@@ -21,8 +25,8 @@ def linear_interp_2D(z_sample, map_low, map_high, logfile=None, verbose=False):
         y2 = ds2["DM"][:]
         y1 = ds1["DM"][:]
 
-        x2 = utils.z_to_mpc(ds2["Header"].attrs["Redshift"])#dist_high
-        x1 = utils.z_to_mpc(ds1["Header"].attrs["Redshift"])#dist_low
+        x2 = utils.z_to_mpc(ds2["Header"].attrs["Redshift"])
+        x1 = utils.z_to_mpc(ds1["Header"].attrs["Redshift"])
 
         grad = (y2 - y1) / (x2 - x1)
 
