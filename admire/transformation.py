@@ -128,12 +128,13 @@ def _mirror(array):
 
     Parameters
     ----------
-    array: 2D numpy array
+    array: 2D numpy.ndarray
+        Input array, must be 2D.
 
     Returns
     -------
     numpy.ndarray
-        The mirrored array
+        Output array, mirrored with the same shape as input array.
     """
     mirrored_array = np.fliplr(array)
     return mirrored_array
@@ -145,7 +146,8 @@ def _rotate(array, rot=0):
 
     Parameters
     ----------
-    array: 2D numpy array
+    array: 2D numpy.ndarray
+        Input array, must be 2D.
 
     rot: int
         The multiple of 90 degrees with which to rotate the array. i.e rot=2
@@ -154,31 +156,35 @@ def _rotate(array, rot=0):
     Returns
     -------
     numpy.ndarray
-        The rotated array
+        Output array, rotated with the same shape as input array.
     """
     rotated_array = np.rot90(array, rot)
     return rotated_array
 
 
-def _translate(array, transx=0, transy=0):
+def _translate(array, transx, transy):
     """
     Translates a 2D array in the x and y directions
 
     Parameters
     ----------
-    array: 2D numpy array
+    array: 2D numpy.ndarray
+        Input array, must be 2D.
 
     transx: int
-        The number of positions to translate along the x axis. Defaut: 0
+        The number of positions to translate along the x axis.
 
     transy: int
-        The number of positions to translate along the y axis. Default: 0
+        The number of positions to translate along the y axis.
 
     Returns
     -------
     numpy.ndarray
-        The translated array
+        Output array, translated with the same shape as input array.
     """
+    if array.dim is not 2:
+        raise ValueError("Input array must be 2D")
+
     translated_array = np.roll(array, (transx, transy), axis=(1, 0))
     return translated_array
 

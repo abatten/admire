@@ -1,0 +1,20 @@
+nguage: python
+os: linux
+dist: xenial
+sudo: false
+
+python:
+    - "3.5"
+    - "3.6"
+    - "3.7"
+
+install:
+    - pip install pytest-cov
+    - pip install codecov
+    - pip install -r requirements.txt
+
+script:
+    - pytest --cov=admire/.
+
+after_success:
+    - codecov 1f3ecd0e-a9d2-4616-a325-7493c268350f
