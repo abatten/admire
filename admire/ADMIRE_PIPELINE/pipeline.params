@@ -1,0 +1,26 @@
+[Conversion]
+Verbose : True
+ProgressBar : True 
+DataDir : /fred/oz071/nwijers/maps/electrons_T4EOS
+OutputDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/maps
+SimName : L0100N1504
+EOS : T4EOS
+ProjectionAxis : z
+MapzVals : [2.0, 1.0, 0.0]
+Boxsize : 100 Mpc
+NumPixels : 32000
+
+[Interpolation]
+Verbose : True
+ProgressBar : True
+MapDir: /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/maps
+DataDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/data
+OutputDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output
+RedshiftMin : 0
+RedshiftMax : 2
+DistSpacing : 100
+MinTransLength : 10
+BoxSize : 100
+NumPixels : 32000
+InterpFileName : INTERP_TESTING
+MasterFileName : MASTER_TESTING
