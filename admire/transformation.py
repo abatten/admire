@@ -1,70 +1,10 @@
 import numpy as np
 import random
-from collections import Counter
-
-def options():
-    options = {'r90': (0, 1),
-               'r180': (0, 2),
-               'r270': (0, 3),
-               'm': (1, 0),
-               'mr90': (1, 1),
-               'mr180': (1, 2),
-               'mr270': (1, 3)
-              }
-    return options
 
 
 def mirror_rotate_options():
     options = [(0, 1), (0, 2), (0, 3), (1, 0), (1, 1), (1, 2), (1, 3)]
     return options
-
-
-
-def gen_mirrot_sequence(length):
-
-    ops = options()
-
-    seq = np.empty(length)
-
-
-    return seq
-
-def mirrot(array, mir=0, rot=0, transx=0, transy=0):
-    """
-    Mirrors and/or rotates an image array
-
-    Parameters
-    ----------
-
-    array : 2D array
-
-    mir : int
-
-    rot : int
-
-    transx : int
-
-    transy : int
-
-    Returns
-    -------
-    mirrot_array : 2D array
-        The mirrored and rotated array
-    """
-
-    if mir == 0:
-        mirrot_array = array
-    elif mir == 1:
-        mirrot_array = np.fliplr(array)
-    else:
-        raise ValueError("Value for mir is not 0 or 1")
-
-    if rot <= 3:
-        mirrot_array = np.rot90(mirrot_array, rot)
-    else:
-        raise ValueError("Value for rot is not 0, 1, 2 or 3")
-
-    return mirrot_array
 
 
 def perform_transform(array, transformation=(0, 0, 0, 0)):
@@ -182,8 +122,8 @@ def _translate(array, transx, transy):
     numpy.ndarray
         Output array, translated with the same shape as input array.
     """
-    if array.dim is not 2:
-        raise ValueError("Input array must be 2D")
+#    if array.dim is not 2:
+#        raise ValueError("Input array must be 2D")
 
     translated_array = np.roll(array, (transx, transy), axis=(1, 0))
     return translated_array
@@ -237,7 +177,7 @@ def gen_transform_sequence(seq_length, min_trans, max_trans):
 
     Returns
     -------
-    list of tuples
+    seq: list of tuples
         A list containing a sequence of transformations
     """
 
@@ -246,7 +186,8 @@ def gen_transform_sequence(seq_length, min_trans, max_trans):
             hase type: {0}""".format(type(seq_length)))
 
     seq = []
-    for i in range(seq_length):
+    seq.append((0,0,0,0))
+    for _ in range(1, seq_length):
         seq.append(gen_random_transform(min_trans, max_trans))
 
     return seq
