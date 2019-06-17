@@ -6,21 +6,32 @@ OutputDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/maps
 SimName : L0100N1504
 EOS : T4EOS
 ProjectionAxis : z
-MapzVals : [2.0, 1.0, 0.0]
+MapzVals : [3.0, 1.0, 0.0]
 Boxsize : 100 Mpc
 NumPixels : 32000
 
 [Interpolation]
 Verbose : True
 ProgressBar : True
-MapDir: /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/maps
+MapDir: /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/maps/T4EOS
 DataDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/data
-OutputDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output
+OutputDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output/T4EOS
 RedshiftMin : 0
-RedshiftMax : 2
+RedshiftMax : 0.1
 DistSpacing : 100
-MinTransLength : 10
+MinTransLength : 15
 BoxSize : 100
 NumPixels : 32000
-InterpFileName : INTERP_TESTING
-MasterFileName : MASTER_TESTING
+InterpFileName : interpolated_dm_map
+MasterFileName : master_dm_maps
+
+[InterpMaster]
+Verbose : True
+ProgressBar : False
+MapDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output/T4EOS
+OutputDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output/T4EOS
+InterpFileName : interpolated_dm_map
+MasterFileName : master_dm_maps
+Header : HEADER
+Dataset : DM
+

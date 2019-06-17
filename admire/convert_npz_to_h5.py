@@ -12,6 +12,7 @@ import configparser as cp
 
 from utilities import vprint
 
+
 def read_user_params(param_path):
     """
 
@@ -50,7 +51,6 @@ def read_user_params(param_path):
 
     return params
 
-
 def hdf5_create_dataset(file, name, data, attributes):
     """
 
@@ -72,6 +72,7 @@ def hdf5_create_dataset(file, name, data, attributes):
         file[name].attrs[key] = val
 
 
+
 def hdf5_create_group_attributes(file, name, attributes):
     """
     """
@@ -79,7 +80,6 @@ def hdf5_create_group_attributes(file, name, attributes):
 
     for key, val in attributes.items():
         group.attrs[key] = val
-
 
 def convert_npz_map_to_hdf5(npz_file, params, redshift=None):
     """
@@ -104,10 +104,19 @@ def convert_npz_map_to_hdf5(npz_file, params, redshift=None):
     filename = os.path.join(params["OutputDir"], ".".join([filename, "hdf5"]))
 
     with np.load(npz_file, "r") as ds, h5py.File(filename, "w") as h5:
-        shape = ds["arr_0"].shape
 
-        data = ds["arr_0"]
-        dm_data = convert_col_density_to_dm(data, redshift=redshift)
+        # Get list of parameters from npz file name
+        file_name_values = npz_file.split("/")[-1].split("_")
+
+        # Get parameters and values from file name
+        snapshot_number = int(file_name_values[3])
+        code_version = file_name_values[4]
+        metal_abundances_type = file_name_values[5]
+        kernel_shape = file_name_values[6]
+        slice_length = file_name_values[8][:4] + " Mpc"
+
+        # Convert electron column density to DM
+        dm_data = convert_col_density_to_dm(ds["arr_0"], redshift=redshift)
 
         dm_data_attributes = {
             "Units": "pc cm**-3",
@@ -116,16 +125,20 @@ def convert_npz_map_to_hdf5(npz_file, params, redshift=None):
 
         header_attributes = {
             "SimName": params["SimName"],
+            "Snapshot": snapshot_number,
+            "Redshift": redshift,
             "EOS": params["EOS"],
             "ProjectionAxis": params["ProjectionAxis"],
             "NumPixels": params["NumPixels"],
             "Boxsize": params["Boxsize"],
-            "Redshift": redshift
+            "SliceLength": slice_length,
+            "CodeVersion": code_version,
+            "MetalAbundancesType": metal_abundances_type,
+            "KernelShape": kernel_shape,
         }
 
         hdf5_create_group_attributes(h5, "HEADER", header_attributes)
         hdf5_create_dataset(h5, "DM", dm_data, dm_data_attributes)
-
 
 def convert_col_density_to_dm(data, redshift=None):
     """

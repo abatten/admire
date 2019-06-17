@@ -159,7 +159,7 @@ def linear_interp2d(z, map_lower, map_higher):
 
         dist = z_to_mpc(z) - x1
 
-        return grad * dist + y1
+    return grad * dist + y1
 
 
 def calc_min_max_translate(min_length, boxsize, num_pixels):
@@ -227,6 +227,34 @@ def length_to_pixels(length, boxsize, num_pixels):
     pixels = int((length / boxsize) * num_pixels)
 
     return pixels
+
+
+def pixels_to_length(pixels, boxsize, num_pixels):
+    """
+    Calculates the length that corresponds to a given number of 'pixels' in
+    a snapshot.
+
+    Parameters
+    ----------
+    length : float
+        The length in the snapshot to convert in to pixels.
+
+    boxsize : float
+        The total length of the box in the same units of length.
+
+    num_pixels : int
+        The number of pixels along an axis of the box.
+
+    Return
+    ------
+    length : float
+        The length that corresponds to a given number of pixels in the
+        boxsize
+
+    """
+    length = (boxsize * pixels) / num_pixels
+
+    return length
 
 
 def get_redshift_from_header(path):
@@ -307,28 +335,105 @@ def get_adjacent_maps(z, z_maps, maps_paths):
     return map_lower, map_higher
 
 
-def create_interpolated_maps(z_interp, z_maps, transform_seq, filename,
-                            verbose=True, pbar_on=True):
+def hdf5_create_dataset(file, name, data, attributes):
+    """
+
+    Parameters
+    """
+    file.create_dataset(name, data=data, dtype=np.float)
+
+    for key, val in attributes.items():
+        file[name].attrs[key] = val
+
+
+def hdf5_create_group_attributes(file, name, attributes):
+    """
+    """
+    group = file.create_group(name)
+
+    for key, val in attributes.items():
+        group.attrs[key] = val
+
+
+def get_header_attributes(z, map_lower, map_higher, transformation):
+    """
+
+    """
+    with h5py.File(map_lower, "r") as ds1, h5py.File(map_higher, "r") as ds2:
+        ds1_attrs = dict(ds1["HEADER"].attrs)
+        ds2_attrs = dict(ds2["HEADER"].attrs)
+
+        boxsize = float(ds1_attrs["Boxsize"].split(" ")[0])
+        numpixels = ds1_attrs["NumPixels"]
+
+        header_attributes = {}
+        header_attributes.update(ds1_attrs)
+        del header_attributes["Snapshot"]
+
+        mirrored = True if transformation[0] == 1 else False
+        rotated = True if transformation[1] == 1 else False
+        x_translate = pixels_to_length(transformation[2], boxsize, numpixels)
+        y_translate = pixels_to_length(transformation[3], boxsize, numpixels)
+
+        new_attributes = {
+            "Redshift": z,
+            "SnapshotLower": ds1_attrs["Snapshot"],
+            "SnapshotHigher": ds2_attrs["Snapshot"],
+            "RedshiftLower": ds1_attrs["Redshift"],
+            "RedshiftHigher": ds2_attrs["Redshift"],
+            "TransformTuple": transformation,
+            "Mirrored": mirrored,
+            "Rotated": rotated,
+            "XTranslate": "{} Mpc".format(x_translate),
+            "YTranslate": "{} Mpc".format(y_translate),
+        }
+
+        header_attributes.update(new_attributes)
+
+    return header_attributes
+
+
+def create_interpolated_maps(z_interp, z_maps, maps_paths,
+                            transform_seq, params):
     """
 
     """
 
-    pbar = tqdm(z_interp, disable=not pbar_on)
+    pbar = tqdm(z_interp, disable=not params["ProgressBar"])
 
     for z in pbar:
         i = np.where(z_interp == z)[0][0]
 
         map_lower, map_higher = get_adjacent_maps(z, z_maps, maps_paths)
 
-        pbar.set_description("Interpolating z = {:.2f}".format(z))
-        interp_map = linear_interp2d(z, map_lower, map_higher)
+        # Perform a 2D linear interpolation from neighbouring maps
+        pbar.set_description(f"Interpolating z = {z:.2f}")
+        output_map = linear_interp2d(z, map_lower, map_higher)
 
-        pbar.set_description("Transforming z = {:.2f}".format(z))
-        transformed_map = transformation.perform_transform(interp_map, transform_seq[i])
+        # Perform transformation on map
+        pbar.set_description(f"Transforming z = {z:.2f}")
+        output_map = transformation.perform_transform(output_map, transform_seq[i])
+
+        pbar.set_description(f"Saving HDF5 z = {z:.2f}")
+
+        fn = "{}_z{:.2f}.hdf5".format(params["InterpFileName"], z)
+        output_fn = os.path.join(params["OutputDir"], fn)
+
+        with h5py.File(output_fn, "w") as h5:
+
+            header_attributes = get_header_attributes(z, map_lower, map_higher,
+                                                      transform_seq[i])
+
+            output_map_attributes = {
+                "Units": "pc cm**-3",
+                "VarDescription": "Dispersion Measure. Electron column density"
+            }
+
+            hdf5_create_group_attributes(h5, "HEADER", header_attributes)
+            hdf5_create_dataset(h5, "DM", output_map, output_map_attributes)
 
 
-
-if __name__ == "__main__":
+def run():
     params = read_user_params(sys.argv[1])
 
     maps_paths = get_file_paths(loc=params["MapDir"])
@@ -356,10 +461,13 @@ if __name__ == "__main__":
                                 min_trans=trans_min,
                                 max_trans=trans_max)
 
-
     vprint("\nTransformation Sequence", params["Verbose"])
     for i, transform in enumerate(transform_sequence):
         vprint("{:<8.3f} {}".format(z_interp[i], transform), params["Verbose"])
 
-    create_interpolated_maps(z_interp, maps_redshifts, transform_sequence,
-                             params["InterpFileName"])
+    create_interpolated_maps(z_interp, maps_redshifts, maps_paths, transform_sequence, params)
+
+
+
+if __name__ == "__main__":
+    run()
