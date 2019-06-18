@@ -16,8 +16,8 @@ ProgressBar : True
 MapDir: /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/maps/T4EOS
 DataDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/data
 OutputDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output/T4EOS
-RedshiftMin : 0
-RedshiftMax : 0.1
+RedshiftMin : 0.0
+RedshiftMax : 3.0
 DistSpacing : 100
 MinTransLength : 15
 BoxSize : 100
@@ -27,7 +27,7 @@ MasterFileName : master_dm_maps
 
 [InterpMaster]
 Verbose : True
-ProgressBar : False
+ProgressBar : True
 MapDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output/T4EOS
 OutputDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output/T4EOS
 InterpFileName : interpolated_dm_map

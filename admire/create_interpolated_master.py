@@ -57,8 +57,7 @@ def create_master(params):
 
         # Link each interpolated file to master file
         for i, fn in enumerate(interp_files):
-            print(i)
-            with h5py.File(fn, mode="w") as file_i:
+            with h5py.File(fn, mode="r") as file_i:
 
                 redshift = file_i[params["Header"]].attrs["Redshift"]
 
