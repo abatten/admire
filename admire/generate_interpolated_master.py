@@ -62,7 +62,7 @@ def create_master(params):
                 redshift = file_i[params["Header"]].attrs["Redshift"]
 
                 # Create sub_group
-                group_name = f"z_{redshift}"
+                group_name = f"slice_{i:03d}"
                 sub_group = group.create_group(group_name)
 
                 # Save the Header and DM dataset to the subgroup
