@@ -88,8 +88,20 @@ def run(params):
 
 
 if __name__ == "__main__":
-    params = dictconfig.read(sys.argv[1], "SumMaster")
-    run(params)
+    if len(sys.argv) == 2:
+        params = dictconfig.read(sys.argv[1], "SumMaster")
+
+    elif len(sys.argv) == 1:
+        print("Please provide parameter file")
+        sys.exit(1)
+
+    else:
+        print("Too many command line arguments!")
+        sys.exit(1)
+
+    for key, value in params.items():
+        print(f"{key:<16}: {value}")
+    #run(params)
 
 
 

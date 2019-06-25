@@ -35,3 +35,13 @@ MasterFileName : master_dm_maps
 Header : HEADER
 Dataset : DM
 
+
+[SumMaster]
+masterdir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output/T4EOS
+outputdir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output/T4EOS
+masterfilename : master_dm_maps.hdf5
+sumfilename : sum_dm_maps
+header : HEADER
+dataset : DM
+numpixels : 32000
+num_slices : 65
