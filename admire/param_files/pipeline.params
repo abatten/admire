@@ -48,6 +48,7 @@ num_slices : 65
 
 
 [1DHist]
+verbose : False
 datadir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output/T4EOS
 outputdir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output/T4EOS
 plotdir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/plot/T4EOS
@@ -55,9 +56,9 @@ num_sub_maps : 25
 sub_map_name : sum_dm_maps
 min_bin : -1
 max_bin : 5
-num_bins : 10000
+num_bins : 1000
 plot_name : DM_1D_hist_plot
-hist_file : DM_1D_hist_data 
+hist_file : DM_1D_hist_data
 num_slices : 65
 
 

@@ -7,9 +7,10 @@ import json
 import os
 import sys
 from tqdm import tqdm
-
 import configparser as cp
 
+
+import pyx
 from utilities import vprint
 
 
@@ -99,7 +100,7 @@ def convert_npz_map_to_hdf5(npz_file, params, redshift=None):
     """
 
     filename = "_".join(["dispersion_measure", params["SimName"],
-                         params["EOS"], "z{}".format(redshift)])
+                         params["EOS"], "comoving", "z{}p{}".format(str(redshift).split(".")[0], str(redshift).split(".")[1])])
 
     filename = os.path.join(params["OutputDir"], ".".join([filename, "hdf5"]))
 
@@ -166,12 +167,16 @@ def convert_col_density_to_dm(data, redshift=None):
     unit_col_dens = 1 * u.cm**-2
     unit_dm = unit_col_dens.to("pc cm**-3")
 
-    dm = (10**data) * unit_dm * (1 + redshift)**-1
+
+    # The factor of (1 + z) was removed after a discussion with Chris Blake.
+    # It looks like we should be correct for it later in the pipeline.
+    dm = (10**data) * unit_dm #* (1 + redshift)**-1
 
     return dm.value
 
 def get_file_paths(loc="", suffix=".npz"):
     """
+
     """
 
     if suffix[0] == ".":
@@ -183,11 +188,12 @@ def get_file_paths(loc="", suffix=".npz"):
 
 
 if __name__ == "__main__":
+    pyx.decoprint.header()
     params = read_user_params(sys.argv[1])
 
     data_files = get_file_paths(loc=params["DataDir"])
 
     for fn in tqdm(data_files, desc="npz --> hdf5", disable=not params["ProgressBar"]):
-        convert_npz_map_to_hdf5(fn, params,
-                                redshift=params["MapzVals"][data_files.index(fn)])
+        convert_npz_map_to_hdf5(fn, params, redshift=params["MapzVals"][data_files.index(fn)])
 
+    pyx.decoprint.footer()

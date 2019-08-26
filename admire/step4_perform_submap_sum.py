@@ -88,6 +88,8 @@ def run(params):
 
 
 if __name__ == "__main__":
+    pyx.decoprint.header("ADMIRE PIPELINE")
+
     if len(sys.argv) == 2:
         params = dictconfig.read(sys.argv[1], "SumMaster")
 
@@ -101,7 +103,7 @@ if __name__ == "__main__":
 
     for key, value in params.items():
         print(f"{key:<16}: {value}")
-    #run(params)
+    run(params)
 
-
+    pyx.decoprint.footer()
 

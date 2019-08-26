@@ -36,7 +36,6 @@ def read_user_params(param_path):
 
     # Data Parameters
     params["MapDir"] = config.get("Interpolation", "MapDir")
-    params["DataDir"] = config.get("Interpolation", "DataDir")
     params["OutputDir"] = config.get("Interpolation", "OutputDir")
 
     # Interpolation Parameters
@@ -134,7 +133,7 @@ def get_redshifts_with_interval(zmin, zmax, interval):
     return redshifts
 
 
-def linear_interp2d(z, map_lower, map_higher):
+def linear_interp2d(z, map_lower, map_higher, comoving_dist=False):
     """
     Peforms a linear interpolation between two dispersion measure maps.
 
@@ -152,12 +151,16 @@ def linear_interp2d(z, map_lower, map_higher):
         y2 = ds2["DM"][:]
         y1 = ds1["DM"][:]
 
-        x2 = z_to_mpc(ds2["HEADER"].attrs["Redshift"])
-        x1 = z_to_mpc(ds1["HEADER"].attrs["Redshift"])
+        if comoving_dist:
+            x2 = z_to_mpc(ds2["HEADER"].attrs["Redshift"])
+            x1 = z_to_mpc(ds1["HEADER"].attrs["Redshift"])
+            dist = z_to_mpc(z) - x1
+        else:
+            x2 = ds2["HEADER"].attrs["Redshift"]
+            x1 = ds1["HEADER"].attrs["Redshift"]
+            dist = z - x1
 
         grad = (y2 - y1)/ (x2 - x1)
-
-        dist = z_to_mpc(z) - x1
 
     return grad * dist + y1
 
@@ -407,8 +410,9 @@ def create_interpolated_maps(z_interp, z_maps, maps_paths,
         map_lower, map_higher = get_adjacent_maps(z, z_maps, maps_paths)
 
         # Perform a 2D linear interpolation from neighbouring maps
+        # Also note that there is a factor of (1 + z). 
         pbar.set_description(f"Interpolating z = {z:.2f}")
-        output_map = linear_interp2d(z, map_lower, map_higher)
+        output_map = linear_interp2d(z, map_lower, map_higher) * (1 + z)**-1
 
         # Perform transformation on map
         pbar.set_description(f"Transforming z = {z:.2f}")
@@ -470,4 +474,6 @@ def run():
 
 
 if __name__ == "__main__":
+    pyx.decoprint.header()
     run()
+    pyx.decoprint.footer()

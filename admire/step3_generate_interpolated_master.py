@@ -75,6 +75,8 @@ def create_master(params):
 
 
 if __name__ == "__main__":
+    pyx.decoprint.header()
     params = read_user_params(sys.argv[1])
     create_master(params)
+    pyx.decoprint.footer()
 
