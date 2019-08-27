@@ -1,0 +1,63 @@
+[Conversion]
+Verbose : True
+ProgressBar : True
+DataDir : /fred/oz071/nwijers/maps/electrons_T4EOS
+OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/maps/T4EOS/comoving
+SimName : L0100N1504
+EOS : T4EOS
+ProjectionAxis : z
+MapzVals : [3.017, 1.004, 0.0]
+Boxsize : 100 Mpc
+NumPixels : 32000
+
+[Interpolation]
+Verbose : True
+ProgressBar : True
+MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/coarse_snapshot_data/maps/T4EOS/DM
+OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/coarse_snapshot_data/linear_redshift_interp/output/T4EOS
+RedshiftMin : 0.0
+RedshiftMax : 3.017
+DistSpacing : 100
+MinTransLength : 15
+BoxSize : 100
+NumPixels : 32000
+InterpFileName : interpolated_dm_map
+MasterFileName : master_dm_maps
+
+[InterpMaster]
+Verbose : True
+ProgressBar : True
+MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/coarse_snapshot_data/maps/T4EOS/DM
+OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/coarse_snapshot_data/linear_redshift_interp/output/T4EOS
+InterpFileName : interpolated_dm_map
+MasterFileName : master_dm_maps
+Header : HEADER
+Dataset : DM
+
+
+[SumMaster]
+outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/coarse_snapshot_data/linear_redshift_interp/output/T4EOS
+masterdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/coarse_snapshot_data/linear_redshift_interp/output/T4EOS
+masterfilename : master_dm_maps.hdf5
+sumfilename : sum_dm_maps
+header : HEADER
+dataset : DM
+numpixels : 32000
+num_slices : 65
+
+
+[1DHist]
+verbose : False
+outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/coarse_snapshot_data/linear_redshift_interp/output/T4EOS
+plotdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/coarse_snapshot_data/linear_redshift_interp/output/T4EOS
+num_sub_maps : 25
+sub_map_name : sum_dm_maps
+min_bin : -1
+max_bin : 5
+num_bins : 1000
+plot_name : DM_1D_hist_plot
+hist_file : DM_1D_hist_data
+num_slices : 65
+
+
+[2DHist]
