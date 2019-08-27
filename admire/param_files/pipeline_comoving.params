@@ -1,0 +1,64 @@
+[Conversion]
+Verbose : True
+ProgressBar : True
+DataDir : /fred/oz071/nwijers/maps/electrons_T4EOS
+OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/maps/T4EOS/comoving
+SimName : L0100N1504
+EOS : T4EOS
+ProjectionAxis : z
+MapzVals : [3.017, 1.004, 0.0]
+Boxsize : 100 Mpc
+NumPixels : 32000
+
+[Interpolation]
+Verbose : True
+ProgressBar : True
+MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/maps/T4EOS/comoving
+OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/output/T4EOS/comoving
+RedshiftMin : 0.0
+RedshiftMax : 3.017
+DistSpacing : 100
+MinTransLength : 15
+BoxSize : 100
+NumPixels : 32000
+InterpFileName : interpolated_dm_map
+MasterFileName : master_dm_maps
+
+[InterpMaster]
+Verbose : True
+ProgressBar : True
+MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/maps/T4EOS/comoving
+OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/output/T4EOS/comoving
+InterpFileName : interpolated_dm_map
+MasterFileName : master_dm_maps
+Header : HEADER
+Dataset : DM
+
+
+[SumMaster]
+masterdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/output/T4EOS/comoving
+outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/output/T4EOS/comoving
+masterfilename : master_dm_maps.hdf5
+sumfilename : sum_dm_maps
+header : HEADER
+dataset : DM
+numpixels : 32000
+num_slices : 65
+
+
+[1DHist]
+verbose : False
+datadir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/output/T4EOS/comoving
+outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/output/T4EOS/comoving
+plotdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/plot/T4EOS/comoving
+num_sub_maps : 25
+sub_map_name : sum_dm_maps
+min_bin : -1
+max_bin : 5
+num_bins : 1000
+plot_name : DM_1D_hist_plot
+hist_file : DM_1D_hist_data
+num_slices : 65
+
+
+[2DHist]

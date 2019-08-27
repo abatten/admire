@@ -1,0 +1,26 @@
+[Conversion]
+Verbose : True
+ProgressBar : True 
+DataDir : /fred/oz071/nwijers/maps/fully_ionized_ISM
+OutputDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/maps/Ionised_ISM
+SimName : L0100N1504
+EOS : T4EOS
+ProjectionAxis : z
+MapzVals : [3.0, 1.0, 0.0]
+Boxsize : 100 Mpc
+NumPixels : 32000
+
+[Interpolation]
+Verbose : True
+ProgressBar : False
+MapDir: /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/maps/Ionised_ISM
+DataDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/data
+OutputDir : /fred/oz071/abatten/EAGLE/ADMIRE_L0100N1504/output/Ionised_ISM
+RedshiftMin : 0
+RedshiftMax : 3.0
+DistSpacing : 100
+MinTransLength : 15
+BoxSize : 100
+NumPixels : 32000
+InterpFileName : interpolated_dm_map
+MasterFileName : master_dm_maps
