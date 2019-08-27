@@ -3,6 +3,7 @@ import h5py
 import os
 import sys
 import dictconfig
+import pyx
 from mpi4py import MPI
 
 

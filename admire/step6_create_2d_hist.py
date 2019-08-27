@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from fruitbat import methods, table, cosmologies
 from mpl_toolkits.axes_grid1 import make_axes_locatable
-
+import pyx
 
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')

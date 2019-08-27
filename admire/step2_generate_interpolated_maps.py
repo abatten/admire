@@ -9,7 +9,7 @@ from tqdm import tqdm
 import astropy.units as u
 
 import configparser as cp
-
+import pyx
 
 import transformation
 from utilities import vprint, z_to_mpc, mpc_to_z, get_file_paths

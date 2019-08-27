@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import utilities as utils
 from tqdm import tqdm
 from mpi4py import MPI
+import pyx
 
 
 def sum_sub_map_slice_hist(sub_map_path, slice_idx, bins):

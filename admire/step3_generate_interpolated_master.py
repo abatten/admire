@@ -5,6 +5,8 @@ import os
 import sys
 from glob import glob
 
+import pyx
+
 from utilities import get_file_paths
 
 
@@ -53,7 +55,7 @@ def create_master(params):
     # Open master file
     with h5py.File(master_file, mode="w") as mf:
         group = mf.create_group("dm_maps")
-        group.attrs["desc"] = "This the the master file for the interpolated redshfits"
+        group.attrs["desc"] = "This is the master file for the interpolated redshfits"
 
         # Link each interpolated file to master file
         for i, fn in enumerate(interp_files):
