@@ -4,6 +4,9 @@ slurm-*
 ._.DS_Store
 *.swp
 *.swo
+profile
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
