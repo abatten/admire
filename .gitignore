@@ -1,3 +1,9 @@
+# Personal Additions
+slurm-*
+.DS_Store
+._.DS_Store
+*.swp
+*.swo
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -102,3 +108,4 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
