@@ -9,7 +9,7 @@ from tqdm import tqdm
 import astropy.units as u
 
 import configparser as cp
-import pyx
+from pyx import print_tools
 
 import transformation
 from utilities import vprint, z_to_mpc, mpc_to_z, get_file_paths
@@ -51,6 +51,8 @@ def read_user_params(param_path):
     # Output file names
     params["InterpFileName"] = config.get("Interpolation", "InterpFileName")
     params["MasterFileName"] = config.get("Interpolation", "MasterFileName")
+
+    params["NewProjected"] = config.getboolean("Interpolation", "NewProjected")
 
 
     vprint("READING PARAMETER FILE FOR INTERPOLATION", params["Verbose"])
@@ -133,7 +135,7 @@ def get_redshifts_with_interval(zmin, zmax, interval):
     return redshifts
 
 
-def linear_interp2d(z, map_lower, map_higher, comoving_dist=False):
+def linear_interp2d(z, map_lower, map_higher, comoving_dist=False, NewProjected=False):
     """
     Peforms a linear interpolation between two dispersion measure maps.
 
@@ -146,18 +148,24 @@ def linear_interp2d(z, map_lower, map_higher, comoving_dist=False):
     Returns
     -------
     """
-
     with h5py.File(map_lower, "r") as ds1, h5py.File(map_higher, "r") as ds2:
-        y2 = ds2["DM"][:]
-        y1 = ds1["DM"][:]
+        if NewProjected:
+            dm_name = "map"
+            header_name = "Header"
+        else:
+            dm_name = "DM"
+            header_name = "HEADER"
+
+        y2 = ds2[dm_name][:]
+        y1 = ds1[dm_name][:]
 
         if comoving_dist:
-            x2 = z_to_mpc(ds2["HEADER"].attrs["Redshift"])
-            x1 = z_to_mpc(ds1["HEADER"].attrs["Redshift"])
+            x2 = z_to_mpc(ds2[header_name].attrs["Redshift"])
+            x1 = z_to_mpc(ds1[header_name].attrs["Redshift"])
             dist = z_to_mpc(z) - x1
         else:
-            x2 = ds2["HEADER"].attrs["Redshift"]
-            x1 = ds1["HEADER"].attrs["Redshift"]
+            x2 = ds2[header_name].attrs["Redshift"]
+            x1 = ds1[header_name].attrs["Redshift"]
             dist = z - x1
 
         grad = (y2 - y1)/ (x2 - x1)
@@ -260,7 +268,7 @@ def pixels_to_length(pixels, boxsize, num_pixels):
     return length
 
 
-def get_redshift_from_header(path):
+def get_redshift_from_header(path, NewProjected=False):
     """
     Parameters
     ----------
@@ -275,10 +283,18 @@ def get_redshift_from_header(path):
 
     """
     with h5py.File(path, "r") as ds:
-        return ds["HEADER"].attrs["Redshift"]
+        if NewProjected:
+            header_name = "Header"
+        else:
+            header_name = "HEADER"
+
+        redshift = ds[header_name].attrs["Redshift"]
+        if redshift < 1e-10:
+            redshift = 0.0
+        return redshift
 
 
-def get_map_redshifts(paths):
+def get_map_redshifts(paths, NewProjected=False):
     """
     Parameters
     ----------
@@ -295,7 +311,7 @@ def get_map_redshifts(paths):
     redshifts = np.empty(len(paths))
 
     for i, path in enumerate(paths):
-        redshifts[i] = get_redshift_from_header(path)
+        redshifts[i] = get_redshift_from_header(path, NewProjected)
 
     return redshifts
 
@@ -358,15 +374,25 @@ def hdf5_create_group_attributes(file, name, attributes):
         group.attrs[key] = val
 
 
-def get_header_attributes(z, map_lower, map_higher, transformation):
+def get_header_attributes(z, map_lower, map_higher, transformation, NewProjected):
     """
 
     """
     with h5py.File(map_lower, "r") as ds1, h5py.File(map_higher, "r") as ds2:
-        ds1_attrs = dict(ds1["HEADER"].attrs)
-        ds2_attrs = dict(ds2["HEADER"].attrs)
+        if NewProjected:
+            header_name = "Header"
+        else:
+            header_name = "HEADER"
 
-        boxsize = float(ds1_attrs["Boxsize"].split(" ")[0])
+        ds1_attrs = dict(ds1[header_name].attrs)
+        ds2_attrs = dict(ds2[header_name].attrs)
+
+        if NewProjected:
+            boxsize_str = ds1_attrs["Boxsize"].decode("utf-8")
+        else:
+            boxsize_str = ds1_attrs["Boxsize"]
+        
+        boxsize = float(boxsize_str.split(" ")[0])
         numpixels = ds1_attrs["NumPixels"]
 
         header_attributes = {}
@@ -395,6 +421,38 @@ def get_header_attributes(z, map_lower, map_higher, transformation):
 
     return header_attributes
 
+def convert_col_density_to_dm(data, redshift=None):
+    """
+    Converts column density [cm**-2] into dispersion measure [pc cm**-3]
+
+    DM = (1 + z)**-1 * CD * pc/cm
+
+    Parameters
+    ----------
+    data : numpy.ndarray
+        Column density data.
+
+    redshift: float, optional
+        The redshift of the data. Default: 0
+
+    Returns
+    -------
+    dm : numpy.ndarray
+        The data converted to dispersion measure.
+
+    """
+    if redshift is None:  # If no redshift is passed, assume redshift is zero.
+        redshift = 0.0
+
+    unit_col_dens = 1 * u.cm**-2
+    unit_dm = unit_col_dens.to("pc cm**-3")
+
+
+    # The factor of (1 + z) was removed after a discussion with Chris Blake.
+    # It looks like we should be correct for it later in the pipeline.
+    dm = data * unit_dm * (1 + redshift)**-1
+
+    return dm.value
 
 def create_interpolated_maps(z_interp, z_maps, maps_paths,
                             transform_seq, params):
@@ -412,7 +470,11 @@ def create_interpolated_maps(z_interp, z_maps, maps_paths,
         # Perform a 2D linear interpolation from neighbouring maps
         # Also note that there is a factor of (1 + z). 
         pbar.set_description(f"Interpolating z = {z:.2f}")
-        output_map = linear_interp2d(z, map_lower, map_higher) * (1 + z)**-1
+
+        # This is in units of column density not DM, need to convert
+        output_map = linear_interp2d(z, map_lower, map_higher, NewProjected=params["NewProjected"]) 
+        
+        output_map = convert_col_density_to_dm(output_map, redshift=z)
 
         # Perform transformation on map
         pbar.set_description(f"Transforming z = {z:.2f}")
@@ -420,13 +482,13 @@ def create_interpolated_maps(z_interp, z_maps, maps_paths,
 
         pbar.set_description(f"Saving HDF5 z = {z:.2f}")
 
-        fn = "{}_z{:.2f}.hdf5".format(params["InterpFileName"], z)
+        fn = "{}_z{:.4f}.hdf5".format(params["InterpFileName"], z)
         output_fn = os.path.join(params["OutputDir"], fn)
 
         with h5py.File(output_fn, "w") as h5:
 
             header_attributes = get_header_attributes(z, map_lower, map_higher,
-                                                      transform_seq[i])
+                                                      transform_seq[i], params["NewProjected"])
 
             output_map_attributes = {
                 "Units": "pc cm**-3",
@@ -440,8 +502,8 @@ def create_interpolated_maps(z_interp, z_maps, maps_paths,
 def run():
     params = read_user_params(sys.argv[1])
 
-    maps_paths = get_file_paths(loc=params["MapDir"])
-    maps_redshifts = get_map_redshifts(maps_paths)
+    maps_paths = get_file_paths(loc=params["MapDir"], reverse=True)
+    maps_redshifts = get_map_redshifts(maps_paths, params["NewProjected"])
 
     vprint("\nRedshifts of Maps", params["Verbose"])
     vprint(maps_redshifts, params["Verbose"])
@@ -474,6 +536,6 @@ def run():
 
 
 if __name__ == "__main__":
-    pyx.decoprint.header()
+    print_tools.script_info.print_header()
     run()
-    pyx.decoprint.footer()
+    print_tools.script_info.print_footer()

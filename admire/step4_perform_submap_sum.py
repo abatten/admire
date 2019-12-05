@@ -3,7 +3,7 @@ import h5py
 import os
 import sys
 import dictconfig
-import pyx
+from pyx import print_tools
 from mpi4py import MPI
 
 
@@ -42,6 +42,7 @@ def run(params):
     worker = True if rank else False
 
 
+    # Divide up the maps into sum maps
     array_size = params["numpixels"]
     num_rows = int(np.sqrt(size))
     num_cols = num_rows
@@ -72,24 +73,33 @@ def run(params):
         array_shape = (num_pixels_per_row, num_pixels_per_col, num_slices)
 
         output.create_dataset("DM", shape=array_shape, dtype=np.float)
+        output.create_dataset("Redshifts", shape=(num_slices,), dtype=np.float)
 
         for index in range(num_slices):
             print(f"Rank: {rank} Slice: {index}")
             data = master["dm_maps"][f"slice_{index:03d}"]["DM"]
+            
+            output["Redshifts"][index] = master["dm_maps"][f"slice_{index:03d}"]["HEADER"].attrs["Redshift"]
 
             if index == 0:
                 output["DM"][:, :, index] = \
                     data[row_ranges[0]: row_ranges[1],
                          col_ranges[0]: col_ranges[1]]
 
+            # If not the first submap, add the current supmap to the previous
+            # output file. 
             else:
-                output["DM"][:, :, index] = (output["DM"][:, :, index - 1] +
-                    data[row_ranges[0]: row_ranges[1], col_ranges[0]: col_ranges[1]])
+                output["DM"][:, :, index] = \
+                    (output["DM"][:, :, index - 1] +
+                    data[row_ranges[0]: row_ranges[1], 
+                         col_ranges[0]: col_ranges[1]])
 
+#                woutput["DM"][:, :, index] = (output["DM"][:, :, index] *
+#                    data[row_ranges[0]: row_ranges[1], col_ranges[0]: col_ranges[1]] / normalisation)
 
 
 if __name__ == "__main__":
-    pyx.decoprint.header("ADMIRE PIPELINE")
+    print_tools.script_info.print_header("ADMIRE PIPELINE")
 
     if len(sys.argv) == 2:
         params = dictconfig.read(sys.argv[1], "SumMaster")
@@ -106,5 +116,5 @@ if __name__ == "__main__":
         print(f"{key:<16}: {value}")
     run(params)
 
-    pyx.decoprint.footer()
+    print_tools.script_info.print_footer()
 
