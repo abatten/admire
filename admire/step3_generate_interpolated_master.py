@@ -4,8 +4,7 @@ import configparser as cp
 import os
 import sys
 from glob import glob
-
-import pyx
+from pyx import print_tools
 
 from utilities import get_file_paths
 
@@ -77,8 +76,8 @@ def create_master(params):
 
 
 if __name__ == "__main__":
-    pyx.decoprint.header()
+    print_tools.script_info.print_header()
     params = read_user_params(sys.argv[1])
     create_master(params)
-    pyx.decoprint.footer()
+    print_tools.script_info.print_footer()
 

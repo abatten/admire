@@ -69,7 +69,7 @@ def mpc_to_z(mpc):
 
 
 
-def get_file_paths(loc="", suffix=".hdf5"):
+def get_file_paths(loc="", suffix=".hdf5", reverse=False):
     """
     """
 
@@ -78,5 +78,10 @@ def get_file_paths(loc="", suffix=".hdf5"):
     else:
         suffix = "".join("*.", suffix)
 
-    return sorted(glob(os.path.join(loc, suffix)))
+    
+    paths = sorted(glob(os.path.join(loc, suffix)))
+    if reverse:
+        paths.reverse()
+
+    return(paths)
 
