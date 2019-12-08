@@ -217,9 +217,9 @@ if __name__ == "__main__":
     }
 
     batten2020 = {
-        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0752/all_snapshot_data/output/T4EOS",
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RecalL0025N0752/all_snapshot_data/output/T4EOS",
         "file_name"    : "admire_output_DM_z_hist_total_normed.hdf5",
-        "label"        : "Batten (2020) RefL0025N0752",
+        "label"        : "Batten (2020) RecalL0025N0752",
         "file_format"  : "hdf5",
         "category"     : "2D-hydrodynamic",
         "dm_scale"     : "linear",
@@ -255,7 +255,7 @@ if __name__ == "__main__":
         model = DMzModel(model_dict)
         all_models.append(model)
     
-    plot_dmz_relation(all_models, "dmz_relation_full_RefL0025N0752", "")
+    plot_dmz_relation(all_models, "dmz_relation_full_RecalL0025N0752", "")
 
     print_tools.print_footer()
 
