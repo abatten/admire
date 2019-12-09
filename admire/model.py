@@ -1,13 +1,33 @@
 """
-Model Class
+This module contains the ``DMzModel`` class. The ``DMzModel class handles all the
+data and paths for loading DM-z relations.
+
 """
 
 import numpy as np
 
 class DMzModel:
     """
+    Handles all of the data and paths for loading DM-z relations.        
+
+
+    txt files:
+        Redshift and DM values are accessed through model.z_vals and model.DM_vals
+
+    hdf5 files:
+        Redshift bins, DM_bins and 2D Histogram are accessed through model.z_bins
+        model.DM_bins, model.Hist
     """
     def __init__(self, model_dict):
+        """
+
+        Parameters
+        ----------
+        model_dict: dict [string, variable]
+            Dictionary containing parameter values for this class instance.
+        """
+
+
 
         acceptable_model_categories = [
             "1D-analytic",
@@ -34,6 +54,12 @@ class DMzModel:
 
     
     def load_model(self):
+        """
+        Loads the DM-z Model.
+
+
+        CHecks which file type the model is (txt or hdf5) and loads all the data.
+        """
         if self.file_format in ["txt", "TXT", ".txt", ".TXT"]:
             self.z_vals, self.DM_vals = np.genfromtxt(self.path, unpack=True)
 
