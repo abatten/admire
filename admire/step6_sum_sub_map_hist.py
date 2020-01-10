@@ -26,7 +26,7 @@ for i, f in enumerate(files):
 data_normed = data / np.sum(data, axis=0)
     
     
-output_name = "admire_output_DM_z_hist_total_normed.hdf5"
+output_name = "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5"
 output_filename = os.path.join(output_dir_name, output_name)
 
 with h5py.File(output_filename, "w") as output:

@@ -98,7 +98,7 @@ def num_intervals_between_redshifts(zmin, zmax, interval):
     dist_min = z_to_mpc(zmin)
     dist_max = z_to_mpc(zmax)
 
-    return int((dist_max - dist_min) / interval)
+    return int((dist_max - dist_min) / interval) + 1
 
 
 def get_redshifts_with_interval(zmin, zmax, interval):
@@ -334,13 +334,13 @@ def get_adjacent_idxs(sample, array):
 
     """
     state = sample >= array #  boolean array
-    # Find the index where the first "True"
-    # This is the first idx lower than the sample
-    idx_lower = np.where(state)[0][0]
+    # Find the index where the last "True"
+    # This is the idx lower than the sample
+    idx_lower = np.where(state)[0][-1]
 
     # Find the index where the last "False"
-    # This is the first idx higher than the sample
-    idx_higher = np.where(np.logical_not(state))[0][-1]
+    # This is the first idx lower than the sample
+    idx_higher = np.where(np.logical_not(state))[0][0]
 
     return idx_lower, idx_higher
 
@@ -473,7 +473,8 @@ def create_interpolated_maps(z_interp, z_maps, maps_paths,
 
         # This is in units of column density not DM, need to convert
         output_map = linear_interp2d(z, map_lower, map_higher, NewProjected=params["NewProjected"]) 
-        
+       
+        # Convert to DM after interpolating Column Density since CD is linear with z.
         output_map = convert_col_density_to_dm(output_map, redshift=z)
 
         # Perform transformation on map

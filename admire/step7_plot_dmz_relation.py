@@ -31,12 +31,31 @@ plt.rc('axes', labelsize=20)
 plt.rc('axes', labelsize=20)
 
 
-def plot_dmz_relation(models, plot_output_name=None, plot_output_path=None, 
-                      plot_output_format=".png", logy=False, 
-                      z_min=0, z_max=3.0, dm_min=0, dm_max=4000,
+def plot_dmz_relation(models, plot_output_name="dmz_relation", 
+                      plot_output_path=None, plot_output_format=".png", 
+                      logy=False, z_min=0.0, z_max=3.0, dm_min=0, dm_max=4000,
                       axis=None, verbose=True):
     """
     Plots the DM-z Relation
+
+
+    Parameters
+    ----------
+    models: 
+
+    plot_output_name: str, optional
+        The name of the output plot. Default: "dmz_relation".
+
+    plot_output_path: str, optional
+
+    plot_output_format: str, optional
+
+    z_min: int or float, optional
+        The minimum Default: 0.0
+
+    z_max: int or float, optional
+        The maximum redshift (max x limit) for the 
+
     """
 
     # Create an figure instance, but use a passed axis if given.
@@ -75,8 +94,6 @@ def plot_dmz_relation(models, plot_output_name=None, plot_output_path=None,
         if model.category[:2] == "1D" and model.plot_toggle:
             print_tools.vprint(f"{model.label}", verbose=verbose)
 
-#in ["1D-analytic", "1D-semi-analytic", "1D-hydrodynamic"]:
-
             # If the model has a marker, use an errorbar plot.
             if model.marker is not None:
                 pass
@@ -110,6 +127,8 @@ def plot_dmz_relation(models, plot_output_name=None, plot_output_path=None,
 if __name__ == "__main__":
     print_tools.print_header("DM-z Relation")
 
+    output_file_name = "dmz_relation_full_RecalL0025N0752_idx_corrected" 
+
     # MODEL DICT TEMPLATE
     #busted3000 = {
     #    "dir_name"     :
@@ -127,7 +146,7 @@ if __name__ == "__main__":
     
     # IOKA (2003)
     ioka2003 = {
-        "dir_name"     : "/home/abatten/admire/admire/DM_redshift_models",
+        "dir_name"     : "/home/abatten/ADMIRE/admire/DM_redshift_models",
         "file_name"    : "ioka2003_EAGLE_DM_min0_max10000_model.txt" ,
         "label"        : "Ioka (2003)",
         "file_format"  : "txt",
@@ -143,7 +162,7 @@ if __name__ == "__main__":
     
     # INOUE (2004)
     inoue2004 = {
-        "dir_name"     : "/home/abatten/admire/admire/DM_redshift_models",
+        "dir_name"     : "/home/abatten/ADMIRE/admire/DM_redshift_models",
         "file_name"    : "inoue2004_EAGLE_DM_min0_max10000_model.txt",
         "label"        : "Inoue (2004)",
         "file_format"  : "txt",
@@ -158,7 +177,7 @@ if __name__ == "__main__":
     
     # ZHANG (2018)
     zhang2018 = {
-        "dir_name"     : "/home/abatten/admire/admire/DM_redshift_models",
+        "dir_name"     : "/home/abatten/ADMIRE/admire/DM_redshift_models",
         "file_name"    : "zhang2018_EAGLE_DM_min0_max5000_model.txt",
         "label"        : "Zhang (2018)",
         "file_format"  : "txt",
@@ -173,7 +192,7 @@ if __name__ == "__main__":
     
     # McQuinn (2014)
     mcquinn2014 = {
-        "dir_name"     : "/home/abatten/admire/admire/DM_redshift_models",
+        "dir_name"     : "/home/abatten/ADMIRE/admire/DM_redshift_models",
         "file_name"    : "mcquinn2014_model.txt",
         "label"        : "McQuinn (2014)",
         "file_format"  : "txt",
@@ -203,7 +222,7 @@ if __name__ == "__main__":
 
     # Pol et al. (2019)
     pol2019 = {
-        "dir_name"     : "/home/abatten/admire/admire/DM_redshift_models",
+        "dir_name"     : "/home/abatten/ADMIRE/admire/DM_redshift_models",
         "file_name"    : "pol2019_model.txt",
         "label"        : "Pol et al. (2019)",
         "file_format"  : "txt",
@@ -218,7 +237,7 @@ if __name__ == "__main__":
 
     batten2020 = {
         "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RecalL0025N0752/all_snapshot_data/output/T4EOS",
-        "file_name"    : "admire_output_DM_z_hist_total_normed.hdf5",
+        "file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
         "label"        : "Batten (2020) RecalL0025N0752",
         "file_format"  : "hdf5",
         "category"     : "2D-hydrodynamic",
@@ -255,7 +274,7 @@ if __name__ == "__main__":
         model = DMzModel(model_dict)
         all_models.append(model)
     
-    plot_dmz_relation(all_models, "dmz_relation_full_RecalL0025N0752", "")
+    plot_dmz_relation(all_models, output_file_name, "")
 
     print_tools.print_footer()
 

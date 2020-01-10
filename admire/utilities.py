@@ -62,7 +62,7 @@ def mpc_to_z(mpc):
     The redshift of the comiving distance.
     """
 
-    if mpc <= 1e-10 * u.mpc:
+    if mpc <= 1e-10 * u.Mpc:
         return 0.0
     else:
         return z_at_value(P15.comoving_distance, mpc)
