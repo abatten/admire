@@ -23,4 +23,4 @@ mpirun -n 25 python ../step4_perform_submap_sum.py ../param_files/pipeline_zinte
 
 wait
 
-cp sum_dm_maps_jobfs* /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS
+cp $JOBFS/sum_dm_maps_jobfs* /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS
