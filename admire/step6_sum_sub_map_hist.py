@@ -4,7 +4,7 @@ import os
 import h5py
 
 
-output_dir_name = "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RecalL0025N0752/all_snapshot_data/output/T4EOS"
+output_dir_name = "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS"
 
 submap_file_name = "admire_output_DM_z_hist_unnormed_0*"
 
