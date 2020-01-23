@@ -7,7 +7,8 @@ from matplotlib.ticker import MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 from scipy.optimize import curve_fit
-
+from scipy.integrate import quad
+import scipy.stats as stats
 
 import cmasher
 import e13tools
@@ -64,6 +65,41 @@ def log_logistic(x, alpha, beta):
 
     return top/bot
 
+def skew_norm(x, eta, omega, alpha, coeff):
+
+    #term1 = 2 / (omega * np.sqrt(2 * np.pi))
+
+    term2 = np.e**(-0.5 * ((x - eta) / omega)**2)
+
+    def term3_integrand(t):
+        return (1 / (2 * np.pi)) * np.e**(-0.5 * t**2 )
+
+    term3_lower_limit = -1 * np.inf
+
+    term3 = np.zeros(len(x))
+    for idx, xval in enumerate(x):
+        term3_upper_limit = alpha * ((xval - eta)/omega)
+
+        term3[idx] = quad(term3_integrand, term3_lower_limit, term3_upper_limit)[0]
+
+    return coeff * term2 * term3
+
+def log_norm(pdf, mu, shape):
+    return stats.lognorm.pdf(pdf, s=shape, loc=mu)
+
+def norm(pdf, mu, sigma, scale):
+    return stats.norm.pdf(pdf, loc=mu, scale=sigma)
+
+#print("Making TEST PDF")
+#test_array = np.linspace(0, 10)
+#test_pdf = skew_norm(test_array, 1, 1, 1)
+#
+#plt.plot(test_array, test_pdf)
+#plt.savefig("TESTINGSKEWNORM.png")
+#plt.clf()
+#
+#print("Finished TEST PDF")
+
 
 
 def calc_median(pdf, bins):
@@ -84,6 +120,8 @@ def calc_median(pdf, bins):
 
 
 def fit_pdf_function(pdf, bins, function='log_logistic'):
+    max_value = np.max(pdf)
+    min_value = np.min(pdf)
 
     if function == 'log_logistic':
         median = calc_median(pdf, bins)
@@ -93,19 +131,30 @@ def fit_pdf_function(pdf, bins, function='log_logistic'):
         fit = curve_fit(log_logistic, bins, pdf, bounds=([0.999999999*alpha, 2], [alpha, 10]))
     
     if function == 'gaussian':
-        max_value = np.max(pdf)
-        min_value = np.min(pdf)
         max_range = bins[np.where(pdf > 1e-4)[0][-1]]
         min_range = bins[np.where(pdf > 1e-4)[0][0]]
         fit = curve_fit(gaussian, bins, pdf, bounds=([min_range, 0, min_value], [max_range, 400, 2 * max_value]))
         
-    if function == 'log_normal':
-        max_value = np.max(pdf)
-        min_value = np.min(pdf)
+    elif function == 'log_normal':
         max_range = bins[np.where(pdf > 1e-4)[0][-1]]
         min_range = bins[np.where(pdf > 1e-4)[0][0]]
         fit = curve_fit(log_normal, bins, pdf, bounds=([0, 0, 0], [max_range, 1000, max_value]))
         #fit = curve_fit(log_normal, bins, pdf, bounds=([0, 0], [max_range, 1000]))
+    
+    elif function == 'log_norm':
+        max_range = bins[np.where(pdf > 1e-4)[0][-1]]
+        min_range = bins[np.where(pdf > 1e-4)[0][0]]
+        fit = curve_fit(log_norm, bins, pdf, bounds=([0, 0], [max_range, 1000]))
+    
+    elif function == 'norm':
+        max_range = bins[np.where(pdf > 1e-4)[0][-1]]
+        min_range = bins[np.where(pdf > 1e-4)[0][0]]
+        fit = curve_fit(norm, bins, pdf, bounds=([0, 0, 0], [max_range, 1000, max_value]))
+
+    elif function == "skew_norm":
+        max_range = bins[np.where(pdf > 1e-4)[0][-1]]
+        min_range = bins[np.where(pdf > 1e-4)[0][0]]
+        fit = curve_fit(skew_norm, bins, pdf, bounds=([0, 0, 0, 0], [max_range, 1000, 1000, max_value]))
 
     return fit
 
@@ -143,6 +192,15 @@ def log_logistic_variance(alpha, beta):
     b = np.pi / beta
     var = alpha**2 * ((2 * b / np.sin(2 * b)) - (b**2 / np.sin(b)**2))
     return var
+
+
+def skew_norm_mean(eta, omega, alpha):
+    delta = alpha / np.sqrt(1 + alpha**2)
+    return eta + omega * delta * np.sqrt(2/np.pi)
+
+def skew_norm_variance(eta, omega, alpha):
+    delta = alpha / np.sqrt(1 + alpha**2)
+    return omega**2 * (1 - 2 * delta**2 / np.pi)
 
 
 if __name__ == "__main__":
@@ -247,7 +305,7 @@ if __name__ == "__main__":
     #output = open("RefL0100N1504_Log_Normal_Fit_Mean_Std.txt", "w")
     #output.write("{:<8} {:<8} {:<8} {:<8} \n".format("Redshift", "Mean", "Std", "Percent"))
 
-    FIT_TYPE = "log_normal"
+    FIT_TYPE = "norm"
 
     # Open file and write header
     output_filename = f"{model.label}_{FIT_TYPE}_fit_mean_std_percent.txt"
@@ -290,6 +348,56 @@ if __name__ == "__main__":
             axes[plot_num].text(0.55, 0.62, f"Fit $\mu = $ {mu_fit:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
             axes[plot_num].text(0.55, 0.55, f"Fit $\sigma = $ {sigma_fit:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
             axes[plot_num].legend(loc='upper left', bbox_to_anchor=(0.50, 0.55), frameon=False, fontsize=10)
+        
+        if FIT_TYPE == "log_norm":
+            mu_fit, sigma_fit = fit[0]
+
+            # Calculate Stats
+            mean, var = stats.lognorm.stats(s=sigma_fit, loc=mu_fit, moments='mv')
+            std = np.sqrt(var)
+            percent = std/mean
+
+            # Plot PDF and FIT
+            axes[plot_num].plot(DM_bin_centres, pdf, color="blue", label="PDF")
+            axes[plot_num].plot(DM_bin_centres, stats.lognorm.pdf(DM_bin_centres, s=sigma_fit, loc=mu_fit), color="red", label="Fit")
+
+            # Find the DM range where the PDF is non-zero
+            val_range = np.where(pdf > 1e-4)
+            axes[plot_num].set_xlim(DM_bin_edges[val_range[0][0]], DM_bin_edges[val_range[0][-1]])
+
+            # Add stats data to plot
+            axes[plot_num].text(0.55, 0.9, f"$z = $ {z_vals[idx]:.3f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.83, f"mean = {mean:.0f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.76, f"std = {std:.0f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.69, f"\% = {percent:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.62, f"Fit $\mu = $ {mu_fit:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.55, f"Fit $\sigma = $ {sigma_fit:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].legend(loc='upper left', bbox_to_anchor=(0.50, 0.55), frameon=False, fontsize=10)
+        
+        if FIT_TYPE == "norm":
+            mu_fit, sigma_fit = fit[0]
+
+            # Calculate Stats
+            mean, var = stats.norm.stats(loc=mu_fit, scale=sigma_fit, moments='mv')
+            std = np.sqrt(var)
+            percent = std/mean
+
+            # Plot PDF and FIT
+            axes[plot_num].plot(DM_bin_centres, pdf, color="blue", label="PDF")
+            axes[plot_num].plot(DM_bin_centres, stats.norm.pdf(DM_bin_centres, scale=sigma_fit, loc=mu_fit), color="red", label="Fit")
+
+            # Find the DM range where the PDF is non-zero
+            val_range = np.where(pdf > 1e-4)
+            axes[plot_num].set_xlim(DM_bin_edges[val_range[0][0]], DM_bin_edges[val_range[0][-1]])
+
+            # Add stats data to plot
+            axes[plot_num].text(0.55, 0.9, f"$z = $ {z_vals[idx]:.3f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.83, f"mean = {mean:.0f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.76, f"std = {std:.0f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.69, f"\% = {percent:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.62, f"Fit $\mu = $ {mu_fit:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.55, f"Fit $\sigma = $ {sigma_fit:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].legend(loc='upper left', bbox_to_anchor=(0.50, 0.55), frameon=False, fontsize=10)
 
         elif FIT_TYPE == "log_logistic":
             alpha_fit, beta_fit = fit[0]
@@ -299,16 +407,13 @@ if __name__ == "__main__":
             std = np.sqrt(log_logistic_variance(alpha=alpha_fit, beta=beta_fit))
             percent = std/mean
 
-            axes[plot_num].plot(DM_bin_edges, pdf, color="blue", label="PDF")
+            axes[plot_num].plot(DM_bin_centres, pdf, color="blue", label="PDF")
             axes[plot_num].plot(DM_bin_centres, log_logistic(DM_bin_centres, alpha_fit, beta_fit), color="red", label="Fit")
 
             # Find the DM range where the PDF is non-zero
             val_range = np.where(pdf > 1e-4)
-            axes[plot_num].set_xlim(bins[val_range[0][0]], bins[val_range[0][-1]])
-            
-            # Find the DM range where the PDF is non-zero
-            val_range = np.where(pdf > 1e-4)
             axes[plot_num].set_xlim(DM_bin_centres[val_range[0][0]], DM_bin_centres[val_range[0][-1]])
+            axes[plot_num].set_ylim(0, 0.061)
 
             # Add stats data to plot
             axes[plot_num].text(0.55, 0.9, f"$z = $ {z_vals[idx]:.3f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
@@ -319,6 +424,31 @@ if __name__ == "__main__":
             axes[plot_num].text(0.55, 0.55, f"Fit $\\beta = $ {beta_fit:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
             axes[plot_num].legend(loc='upper left', bbox_to_anchor=(0.50, 0.55), frameon=False, fontsize=10)
 
+        elif FIT_TYPE == "skew_norm":
+            eta_fit, omega_fit, alpha_fit, coeff_fit = fit[0]
+            print("PDF Sum :", np.sum(pdf))
+            # Calculate Stats
+            mean = skew_norm_mean(eta=eta_fit, omega=omega_fit, alpha=alpha_fit)
+            std = np.sqrt(skew_norm_variance(eta=eta_fit, omega=omega_fit, alpha=alpha_fit))
+            percent = std/mean
+
+            axes[plot_num].plot(DM_bin_centres, pdf, color="blue", label="PDF")
+            axes[plot_num].plot(DM_bin_centres, skew_norm(DM_bin_centres, eta_fit, omega_fit, alpha_fit, coeff_fit), color="red", label="Fit")
+            
+            # Find the DM range where the PDF is non-zero
+            val_range = np.where(pdf > 1e-4)
+            axes[plot_num].set_xlim(DM_bin_centres[val_range[0][0]], DM_bin_centres[val_range[0][-1]])
+            axes[plot_num].set_ylim(0, 0.061)
+
+            # Add stats data to plot
+            axes[plot_num].text(0.55, 0.9, f"$z = $ {z_vals[idx]:.3f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.83, f"mean = {mean:.0f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.76, f"std = {std:.0f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.69, f"\% = {percent:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.62, f"Fit $\eta = $ {eta_fit:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.55, f"Fit $\omega = $ {omega_fit:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].text(0.55, 0.48, f"Fit $\\alpha = $ {alpha_fit:.2f}", horizontalalignment='left', verticalalignment='center', transform=axes[plot_num].transAxes, fontsize=11)
+            axes[plot_num].legend(loc='upper left', bbox_to_anchor=(0.50, 0.48), frameon=False, fontsize=10)
 
 
         output.write(f"{redshift:<8.3f} {mean:<8.3f} {std:<8.3f} {percent:<8.3f} \n")
