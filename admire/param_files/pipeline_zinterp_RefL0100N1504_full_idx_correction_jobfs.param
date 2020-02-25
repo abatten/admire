@@ -30,7 +30,7 @@ NewProjected : True
 Verbose : True
 ProgressBar : True
 MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/maps/T4EOS/DM
-OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS
+OutputDir : /var/tmp/jobfs
 InterpFileName : interpolated_dm_map_idx_corrected
 MasterFileName : master_dm_maps_idx_corrected
 Header : HEADER
@@ -38,8 +38,8 @@ Dataset : DM
 
 
 [SumMaster]
-masterdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS
-outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS
+masterdir : /var/tmp/jobfs
+outputdir : /var/tmp/jobfs
 masterfilename : master_dm_maps_idx_corrected.hdf5
 sumfilename : sum_dm_maps_idx_corrected
 header : HEADER
@@ -50,9 +50,9 @@ num_slices : 66
 
 [1DHist]
 verbose : True
-datadir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS
-outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS
-plotdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/plot/T4EOS
+datadir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS
+outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS
+plotdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/plot/T4EOS
 num_sub_maps : 25
 sub_map_name : sum_dm_maps_idx_corrected
 min_bin : 0
@@ -60,4 +60,4 @@ max_bin : 5
 num_bins : 1001
 plot_name : DM_1D_hist_plot
 hist_file : DM_1D_hist_data
-num_slices : 66
+num_slices : 262
