@@ -27,13 +27,12 @@ class DMzModel:
             Dictionary containing parameter values for this class instance.
         """
 
-
-
         acceptable_model_categories = [
             "1D-analytic",
             "1D-semi-analytic",
             "1D-hydrodynamic",
             "2D-hydrodynamic",
+            "mean-hydrodynamic",
         ]
 
         if model_dict["category"] not in acceptable_model_categories:
@@ -51,14 +50,12 @@ class DMzModel:
         self.load_model()
 
 
-
-    
     def load_model(self):
         """
         Loads the DM-z Model.
 
 
-        CHecks which file type the model is (txt or hdf5) and loads all the data.
+        Checks which file type the model is (txt or hdf5) and loads all the data.
         """
         if self.file_format in ["txt", "TXT", ".txt", ".TXT"]:
             self.z_vals, self.DM_vals = np.genfromtxt(self.path, unpack=True)
@@ -70,14 +67,9 @@ class DMzModel:
                 self.z_bins = ds["Redshifts"][:]
                 self.DM_bins = ds["Bin_Edges"][:]
                 self.Hist = ds["DMz_hist"][:]
-
-
-
+                self.DM_bin_centres = ds["Bin_Centres"][:]
+        
         else:
             msg = ("I don't know how to load a {} " 
                    "file format".format(self.file_format))  
             raise ValueError(msg)
-
-
-
-#    def calc_DM_bin_centres(self):

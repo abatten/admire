@@ -1,10 +1,15 @@
+
+
 # Personal Additions
 slurm-*
+stderr*
+stdout*
 .DS_Store
 ._.DS_Store
 *.swp
 *.swo
 profile
+*.png
 
 
 # Byte-compiled / optimized / DLL files
