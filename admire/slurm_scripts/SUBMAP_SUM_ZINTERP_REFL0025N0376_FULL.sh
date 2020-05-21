@@ -14,4 +14,4 @@ module load hdf5/1.10.1
 
 
 
-mpirun -n 25 python ../step4_perform_submap_sum.py ../param_files/pipeline_zinterp_RefL0025N0376_full.param
+mpirun -n 25 python ../pipeline_step04_perform_submap_sum.py ../param_files/pipeline_zinterp_RefL0025N0376_full.param

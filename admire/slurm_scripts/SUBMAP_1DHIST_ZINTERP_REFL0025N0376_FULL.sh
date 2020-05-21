@@ -17,4 +17,4 @@ module load gcc/7.3.0
 module load git/2.16.0
 #module load hdf5/1.10.1
 
-mpirun -n 25 python ../step5_generate_slice_hist.py ../param_files/pipeline_zinterp_RefL0025N0376_full.param
+mpirun -n 25 python ../pipeline_step05_generate_slice_hist.py ../param_files/pipeline_zinterp_RefL0025N0376_full.param

@@ -19,9 +19,9 @@ echo $JOBFS
 
 cp /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS/interpolated_dm_map_*.hdf5 $JOBFS
 
-python ../step3_generate_interpolated_master.py ../param_files/pipeline_zinterp_RefL0025N0376_full_idx_correction_jobfs.param
+python ../pipeline_step03_generate_interpolated_master.py ../param_files/pipeline_zinterp_RefL0025N0376_full_idx_correction_jobfs.param
 
-mpirun -n 25 python ../step4_perform_submap_sum.py ../param_files/pipeline_zinterp_RefL0025N0376_full_idx_correction_jobfs.param
+mpirun -n 25 python ../pipeline_step04_perform_submap_sum.py ../param_files/pipeline_zinterp_RefL0025N0376_full_idx_correction_jobfs.param
 
 wait
 
