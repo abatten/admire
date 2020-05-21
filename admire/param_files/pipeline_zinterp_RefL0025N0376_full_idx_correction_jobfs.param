@@ -1,0 +1,63 @@
+[Conversion]
+Verbose : True
+ProgressBar : True
+DataDir : /fred/oz071/nwijers/maps/electrons_T4EOS
+OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/coarse_snapshot_data/maps/T4EOS/DM
+SimName : L0100N1504
+EOS : T4EOS
+ProjectionAxis : z
+MapzVals : [3.017, 1.004, 0.0]
+Boxsize : 100 Mpc
+NumPixels : 32000
+
+[Interpolation]
+Verbose : True
+ProgressBar : True
+MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/maps/T4EOS/DM
+OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS/
+RedshiftMin : 0.0
+RedshiftMax : 3.017
+DistSpacing : 25
+MinTransLength : 10
+BoxSize : 25
+NumPixels : 8000
+InterpFileName : interpolated_dm_map
+MasterFileName : master_dm_maps
+NewProjected : True
+
+
+[InterpMaster]
+Verbose : True
+ProgressBar : True
+MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/maps/T4EOS/DM
+OutputDir : /var/tmp/jobfs
+InterpFileName : interpolated_dm_map_idx_corrected
+MasterFileName : master_dm_maps_idx_corrected
+Header : HEADER
+Dataset : DM
+
+
+[SumMaster]
+masterdir : /var/tmp/jobfs
+outputdir : /var/tmp/jobfs
+masterfilename : master_dm_maps_idx_corrected.hdf5
+sumfilename : sum_dm_maps_jobfs_idx_corrected
+header : HEADER
+dataset : DM
+numpixels : 8000
+num_slices : 262
+
+
+[1DHist]
+verbose : True
+datadir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS
+outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS
+plotdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/plot/T4EOS
+num_sub_maps : 25
+sub_map_name : sum_dm_maps_idx_corrected
+min_bin : 0
+max_bin : 5
+num_bins : 1001
+plot_name : DM_1D_hist_plot
+hist_file : DM_1D_hist_data
+num_slices : 262

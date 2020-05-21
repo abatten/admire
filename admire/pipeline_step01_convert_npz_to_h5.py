@@ -117,7 +117,7 @@ def convert_npz_map_to_hdf5(npz_file, params, redshift=None):
         slice_length = file_name_values[8][:4] + " Mpc"
 
         # Convert electron column density to DM
-        dm_data = convert_col_density_to_dm(ds["arr_0"], redshift=redshift)
+        dm_data = convert_col_density_to_pc_cm3(ds["arr_0"], redshift=redshift)
 
         dm_data_attributes = {
             "Units": "pc cm**-3",
@@ -141,7 +141,7 @@ def convert_npz_map_to_hdf5(npz_file, params, redshift=None):
         hdf5_create_group_attributes(h5, "HEADER", header_attributes)
         hdf5_create_dataset(h5, "DM", dm_data, dm_data_attributes)
 
-def convert_col_density_to_dm(data, redshift=None):
+def convert_col_density_to_pc_cm3(data, redshift=None):
     """
     Converts column density [cm**-2] into dispersion measure [pc cm**-3]
 
