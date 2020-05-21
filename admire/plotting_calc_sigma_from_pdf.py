@@ -133,16 +133,16 @@ def plot_one_sigma(models):
     for idx, model in enumerate(models):
         z, std = np.loadtxt(f"one_sigma_EAGLE_from_PDF_{model.label}.txt", unpack=True, skiprows=1)
 
-        plt.plot(z, std, label=model.label, color=colours[idx])
+        plt.plot(z, 0.5 * std, label=model.label, color=colours[idx])
         redshift_list.append(z)
         std_list.append(std)
         label_list.append(model.label)
 
     
     plt.xlabel('Redshift')
-    plt.ylabel('DM 68\% confidence interval width \n [$\mathrm{pc cm^{-3}}$]')
+    plt.ylabel('DM Half 68\% Confidence Interval Width\n [$\mathrm{pc cm^{-3}}$]')
     plt.legend(frameon=False, fontsize=16)
-    plt.savefig("TESTING_STD_FROM_PDF.png", dpi=200)
+    plt.savefig("DM_Half_Confidence_Interval_Width.png", dpi=200)
 
 
 
