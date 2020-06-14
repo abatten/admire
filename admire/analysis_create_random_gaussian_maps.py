@@ -85,20 +85,39 @@ def num_intervals_between_redshifts(zmin, zmax, interval):
 
 
 if __name__ == "__main__":
-    mean = 1000
-    std = 10
 
-    num_pixels_per_side = 16000
+    # RefL0100
+    #mean=60
+    #std=10
 
-    num_maps = 131
+    # RefL0025
+    mean = 60 / 4
+    std = 10 / 5        # These division factors came from the real maps ratios
+    #std=50
 
-    z_list = get_redshifts_with_interval(0, 3.016, 50) + cosmo.cMpc_to_z(50)
+    num_pixels_per_side = 8000
+
+    num_maps = 262
+
+    z_list = get_redshifts_with_interval(0, 3.016, 25) + cosmo.cMpc_to_z(25)
     print(z_list)
     for idx in range(num_maps):
-        map_array = stats.norm.rvs(loc=mean, scale=std, size=(num_pixels_per_side, num_pixels_per_side))
+        dm_mean = mean
+        dm_std = std
+        map_array = stats.norm.rvs(loc=dm_mean, scale=dm_std, size=(num_pixels_per_side, num_pixels_per_side))
 
-        filename = f"/home/abatten/ADMIRE_ANALYSIS/Random_Gaussian_Maps/RandL0050/random_gaussian_fixed_mean_fixed_std_{idx:03d}.hdf5"
+        xzeros, yzeros = np.where(map_array < 0)
+
+        if len(xzeros) > 0:
+            for xi, yi in zip(xzeros, yzeros):
+                print(f"Replacing: x={xi} y={yi} with zero!")
+                print(map_array[xi][yi])
+                map_array[xi][yi] = 0.0
+
+        filename = f"/home/abatten/ADMIRE_ANALYSIS/Random_Gaussian_Maps/RandL0025/random_gaussian_fixed_mean_15_fixed_std_2_{idx:03d}.hdf5"
         print(filename)
+
+        print(z_list[idx], dm_mean, dm_std)
         with h5py.File(filename, "w") as output:
                 output.create_dataset("dm", data=map_array, dtype=np.float)
                 header_attributes = {'Redshift': z_list[idx]}
