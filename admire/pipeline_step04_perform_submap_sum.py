@@ -77,9 +77,9 @@ def run(params):
 
         for index in range(num_slices):
             print(f"Rank: {rank} Slice: {index}")
-            data = master["dm_maps"][f"slice_{index:03d}"]["DM"]
+            data = master["dm_maps"][f"slice_{index:03d}"][params["dataset"]]
             
-            output["Redshifts"][index] = master["dm_maps"][f"slice_{index:03d}"]["HEADER"].attrs["Redshift"]
+            output["Redshifts"][index] = master["dm_maps"][f"slice_{index:03d}"][params["header"]].attrs["Redshift"]
 
             if index == 0:
                 output["DM"][:, :, index] = \

@@ -60,7 +60,11 @@ def create_master(params):
         for i, fn in enumerate(interp_files):
             with h5py.File(fn, mode="r") as file_i:
 
-                redshift = file_i[params["Header"]].attrs["Redshift"]
+                try:
+                    redshift = file_i[params["Header"]].attrs["Redshift"]
+
+                except:
+                    redshift = file_i[params["Header"]].attrs["redshift"]
 
                 # Create sub_group
                 group_name = f"slice_{i:03d}"
@@ -77,6 +81,7 @@ def create_master(params):
 
 if __name__ == "__main__":
     print_tools.script_info.print_header()
+
     params = read_user_params(sys.argv[1])
     create_master(params)
     print_tools.script_info.print_footer()

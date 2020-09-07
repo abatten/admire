@@ -32,7 +32,7 @@ plt.rc("ytick", right=True)
 
 def calc_std_bin_idx_from_pdf(pdf, num_sigma=1):
     """
-    Calculates the bin index of a standard deviation from a pdf. 
+    Calculates the bin index of a standard deviation from a pdf.
 
     """
 
@@ -57,7 +57,7 @@ def calc_std_bin_idx_from_pdf(pdf, num_sigma=1):
 
     cdf = np.cumsum(pdf)
     cdf = cdf/cdf[-1]
-    
+
 
     std_lower_idx = np.where(cdf >= std_lower_thresh)[0][0]
     std_upper_idx = np.where(cdf <= std_upper_thresh)[0][-1] + 1
@@ -110,13 +110,13 @@ def calc_sigma(model):
             #    lower_idx, upper_idx = calc_std_bin_idx_from_pdf(pdf, num_sigma=2)
             #    lower_std, upper_std = calc_std_values(model.DM_bins, lower_idx, upper_idx)
             #    std2_values.append((lower_std, upper_std))
-                
+
             #    lower_idx, upper_idx = calc_std_bin_idx_from_pdf(pdf, num_sigma=3)
             #    lower_std, upper_std = calc_std_values(model.DM_bins, lower_idx, upper_idx)
             #    std3_values.append((lower_std, upper_std))
-    
+
     output.close()
- 
+
 
 
 def plot_one_sigma(models):
@@ -133,22 +133,22 @@ def plot_one_sigma(models):
     for idx, model in enumerate(models):
         z, std = np.loadtxt(f"one_sigma_EAGLE_from_PDF_{model.label}.txt", unpack=True, skiprows=1)
 
-        plt.plot(z, std, label=model.label, color=colours[idx])
+        plt.plot(z, 0.5 * std, label=model.label, color=colours[idx])
         redshift_list.append(z)
         std_list.append(std)
         label_list.append(model.label)
 
-    
+
     plt.xlabel('Redshift')
-    plt.ylabel('DM 68\% confidence interval width \n [$\mathrm{pc cm^{-3}}$]')
+    plt.ylabel('DM Half 68\% Confidence Interval Width\n [$\mathrm{pc cm^{-3}}$]')
     plt.legend(frameon=False, fontsize=16)
-    plt.savefig("TESTING_STD_FROM_PDF.png", dpi=200)
+    plt.savefig("DM_Half_Confidence_Interval_Width.png", dpi=200)
 
 
 
 
 if __name__ == "__main__":
-    
+
     RefL0025N0752 = {
         "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0752/all_snapshot_data/output/T4EOS",
         "file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
@@ -163,7 +163,7 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
         "boxsize"      : 25
     }
-    
+
     RefL0025N0376 = {
         "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS",
         "file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
@@ -178,7 +178,7 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
         "boxsize"      : 25
     }
-    
+
     RecalL0025N0752 = {
         "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RecalL0025N0752/all_snapshot_data/output/T4EOS",
         "file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
@@ -193,7 +193,7 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
         "boxsize"      : 25
     }
-    
+
     RefL0050N0752 = {
         "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0050N0752/all_snapshot_data/output/T4EOS",
         "file_name"    : "admire_output_DM_z_hist_total_normed_bin_width_and_idx_corrected.hdf5",
@@ -208,11 +208,11 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
         "boxsize"      : 50
     }
-    
+
     RefL0100N1504 = {
         "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
         #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
-        "file_name"    : "admire_output_DM_z_hist_total_normed_bin_width_and_idx_corrected.hdf5",      
+        "file_name"    : "admire_output_DM_z_hist_total_normed_bin_width_and_idx_corrected.hdf5",
         "label"        : "RefL0100N1504",
         "file_format"  : "hdf5",
         "category"     : "2D-hydrodynamic",
@@ -224,7 +224,7 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
         "boxsize"      : 100
     }
-    
+
     model_dicts = [
         RefL0025N0752,
         RefL0025N0376,
