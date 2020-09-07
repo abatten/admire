@@ -89,17 +89,19 @@ if __name__ == "__main__":
     # RefL0100
     #mean=60
     #std=10
+    #num_pixels_per_side = 32000
+    #num_maps = 66
+    #boxlength = 100
 
     # RefL0025
     mean = 60 / 4
     std = 10 / 5        # These division factors came from the real maps ratios
     #std=50
-
     num_pixels_per_side = 8000
-
     num_maps = 262
+    boxlength = 25
 
-    z_list = get_redshifts_with_interval(0, 3.016, 25) + cosmo.cMpc_to_z(25)
+    z_list = get_redshifts_with_interval(0, 3.016, boxlength) + cosmo.cMpc_to_z(boxlength)
     print(z_list)
     for idx in range(num_maps):
         dm_mean = mean

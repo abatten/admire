@@ -11,7 +11,7 @@ import astropy.units as u
 import configparser as cp
 
 
-from pyx import print_tools
+from pyx import print_tools, math_tools
 
 import transformation
 from utilities import vprint, z_to_mpc, mpc_to_z, get_file_paths
@@ -393,7 +393,7 @@ def get_header_attributes(z, map_lower, map_higher, transformation, NewProjected
             boxsize_str = ds1_attrs["Boxsize"].decode("utf-8")
         else:
             boxsize_str = ds1_attrs["Boxsize"]
-        
+
         boxsize = float(boxsize_str.split(" ")[0])
         numpixels = ds1_attrs["NumPixels"]
 
@@ -470,18 +470,22 @@ def create_interpolated_maps(z_interp, z_maps, maps_paths,
         map_lower, map_higher = get_adjacent_maps(z, z_maps, maps_paths)
 
         # Perform a 2D linear interpolation from neighbouring maps
-        # Also note that there is a factor of (1 + z). 
+        # Also note that there is a factor of (1 + z).
         pbar.set_description(f"Interpolating z = {z:.2f}")
 
         # This is in units of column density not DM, need to convert
-        output_map = linear_interp2d(z, map_lower, map_higher, NewProjected=params["NewProjected"]) 
-       
+        output_map = linear_interp2d(z, map_lower, map_higher, NewProjected=params["NewProjected"])
+
         # Convert to DM after interpolating Column Density since CD is linear with z.
         output_map = convert_col_density_to_dm(output_map, redshift=z)
 
         # Perform transformation on map
-        pbar.set_description(f"Transforming z = {z:.2f}")
-        output_map = transformation.perform_transform(output_map, transform_seq[i])
+        #pbar.set_description(f"Transforming z = {z:.2f}")
+        #output_map = transformation.perform_transform(output_map, transform_seq[i])
+
+        pbar.set_description(f"Shuffling z = {z:.2f}")
+        output_map = math_tools.mixup(output_map)
+
 
         pbar.set_description(f"Saving HDF5 z = {z:.2f}")
 
@@ -506,6 +510,7 @@ def run():
     params = read_user_params(sys.argv[1])
 
     maps_paths = get_file_paths(loc=params["MapDir"], reverse=True)
+    print(maps_paths)
     maps_redshifts = get_map_redshifts(maps_paths, params["NewProjected"])
 
     vprint("\nRedshifts of Maps", params["Verbose"])

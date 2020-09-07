@@ -88,14 +88,8 @@ def calc_stats_from_model(all_models):
     std3_lim_l, std3_lim_u = sigma_to_pdf_percentiles(3)
 
     for model in all_models:
-        output_file_name = f"./analysis_outputs/ANALYSIS_{model.label}_confidence_intervals.txt"
-
-
+        output_file_name = f"./analysis_outputs/shuffled/ANALYSIS_{model.label}_confidence_intervals.txt"
         redshifts = model.z_bins
-
-        #mean_arr = np.zeros_like(redshifts)
-        #std_arr = np.zeros_like(redshifts)
-        #conf_int_sigma = np.zeros_like(redshifts)
 
         output = open(output_file_name, "w")
 
@@ -115,11 +109,10 @@ def calc_stats_from_model(all_models):
             )
         )
 
-
         for zidx, z in enumerate(redshifts):
 
             dm_pdf = model.Hist.T[zidx]
-            dm_bins = model.DM_bins[1:]
+            dm_bins = model.DM_bin_centres
             dm_bin_widths = model.DM_bin_widths
 
             mean = calc_mean_from_pdf(dm_bins, dm_pdf, dx=dm_bin_widths)
@@ -150,7 +143,7 @@ if __name__ == "__main__":
 
     L0100N1504 = {
         #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS",
-        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/shuffled_output/",
         #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
         "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
         "label"        : "RefL0100N1504",

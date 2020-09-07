@@ -86,7 +86,7 @@ def calc_stats_from_model(all_models):
     std_lim_l, std_lim_u = sigma_to_pdf_percentiles(1)
 
     for model in all_models:
-        output_file_name = f"./analysis_outputs/ANALYSIS_{model.label}_mean_var_std_from_pdf.txt"
+        output_file_name = f"./analysis_outputs/shuffled/ANALYSIS_{model.label}_mean_var_std_from_pdf.txt"
 
 
         redshifts = model.z_bins
@@ -100,7 +100,7 @@ def calc_stats_from_model(all_models):
         output.write(f"Statistics of EAGLE Simulation: {model.label}\n")
 
         output.write(
-            "{:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}\n".format(
+            "{:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10} {:<10}\n".format(
             "Redshift",
             "Mean",
             "Median",
@@ -117,7 +117,7 @@ def calc_stats_from_model(all_models):
         for zidx, z in enumerate(redshifts):
 
             dm_pdf = model.Hist.T[zidx]
-            dm_bins = model.DM_bins[1:]
+            dm_bins = model.DM_bin_centres#[1:]
             dm_bin_widths = model.DM_bin_widths
 
             mean = calc_mean_from_pdf(dm_bins, dm_pdf, dx=dm_bin_widths)
@@ -167,12 +167,12 @@ def calc_stats_from_model(all_models):
 
 if __name__ == "__main__":
 
-    print_tools.print_header("DM-z Relation")
+    print_tools.print_header("Analysis: Calculate Model Statistics")
 
 
-    L0025N0376 = {
-        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS",
-        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+    RefL0025N0376 = {
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS",
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/shuffled_output/",
         #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
         "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
         "label"        : "RefL0025N0376",
@@ -186,9 +186,9 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
     }
 
-    L0025N0752 = {
-        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0752/all_snapshot_data/output/T4EOS",
-        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+    RefL0025N0752 = {
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0752/all_snapshot_data/output/T4EOS",
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0752/all_snapshot_data/shuffled_output/",
         #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
         "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
         "label"        : "RefL0025N0752",
@@ -203,8 +203,8 @@ if __name__ == "__main__":
     }
 
     RecalL0025N0752 = {
-        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RecalL0025N0752/all_snapshot_data/output/T4EOS",
-        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RecalL0025N0752/all_snapshot_data/output/T4EOS",
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RecalL0025N0752/all_snapshot_data/shuffled_output/",
         #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
         "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
         "label"        : "RecalL0025N0752",
@@ -218,8 +218,8 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
     }
 
-    L0050N0752 = {
-        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0050N0752/all_snapshot_data/output/T4EOS",
+    RefL0050N0752 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0050N0752/all_snapshot_data/shuffled_output/",
         #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
         #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
         "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
@@ -234,9 +234,9 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
     }
 
-    L0100N1504 = {
-        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/output/T4EOS",
-        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+    RefL0100N1504 = {
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/shuffled_output/",
         #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
         "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
         "label"        : "RefL0100N1504",
@@ -250,12 +250,42 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
     }
 
+    RandL0100 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/Random_Gaussian_Maps/RandL0100/",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "RandGaussL0100",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.arctic_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
+    RandL0025 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/Random_Gaussian_Maps/RandL0025/",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "RandGaussL0025",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.arctic_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
     model_dicts = [
-        L0100N1504,
-        L0025N0376,
-        L0025N0752,
-        RecalL0025N0752,
-        L0050N0752,
+    #    RefL0100N1504,
+         RefL0025N0376,
+    #    RefL0025N0752,
+    #   RecalL0025N0752,
+    #    RefL0050N0752,
+    #RandL0100,
+    #RandL0025,
     ]
 
 #######################################################################

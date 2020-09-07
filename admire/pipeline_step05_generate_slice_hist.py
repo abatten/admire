@@ -10,11 +10,16 @@ import utilities as utils
 from tqdm import tqdm
 from mpi4py import MPI
 from pyx import print_tools
+import fast_histogram
 
 
 def sum_sub_map_slice_hist(sub_map_path, slice_idx, bins):
     with h5py.File(sub_map_path, "r") as f:
-        hist, edges = np.histogram(f["DM"][:, :, slice_idx], bins)
+        #edges = bins
+
+        #new_dm = np.log10(f["DM"][:, :, slice_idx])# - 940)
+        #hist = fast_histogram.histogram1d(new_dm, range=[0, 5], bins=1000)
+        hist, edges = np.histogram(f["DM"][:, :, slice_idx] , bins)
 
     return (hist, edges)
 
@@ -61,14 +66,14 @@ def run(params):
 
 
     output_filename = os.path.join(params["outputdir"],
-        f"admire_output_DM_z_hist_unnormed_{rank:03d}.hdf5" )
+        f"admire_output_DM_z_hist_unnormed_fixed_mean_fixed_sigma_corrected_{rank:03d}.hdf5" )
 
     with h5py.File(output_filename, "w") as output, h5py.File(sub_map_path, "r") as submap:
         output.create_dataset("DMz_hist", data=twod_array, dtype=np.float)
         output.create_dataset("Redshifts", data=submap["Redshifts"][:], dtype=np.float)
         output.create_dataset("Bin_Edges", data=edges, dtype=np.float)
 
-        bin_centres = edges[:-1] + np.diff(bins) / 2
+        bin_centres = bins[:-1] + np.diff(bins) / 2
         output.create_dataset("Bin_Centres", data=bin_centres, dtype=np.float)
     #np.savez(output_filename, "hist_data"=twod_array, "edges"=edges)
 

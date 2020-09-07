@@ -7,7 +7,7 @@ from matplotlib.ticker import MaxNLocator
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
-
+from astropy import cosmology
 
 import cmasher
 from glob import glob
@@ -100,7 +100,7 @@ def calc_mean_from_pdf(bin_values, pdf):
 
 
 def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
-                      plot_output_path=None, plot_output_format=".png",
+                      plot_output_path=None, plot_output_format=".eps",
                       relative=False, z_min=0.0, z_max=3.0, sigma_min=0, sigma_max=4000,
                       axis=None, verbose=True, frb_obs=None):
     """
@@ -173,7 +173,7 @@ def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
 
             #output.close()
 
-            data = np.loadtxt("analysis_outputs/ANALYSIS_RefL0100N1504_confidence_intervals.txt", unpack=True, skiprows=2)
+            data = np.loadtxt("analysis_outputs/shuffled/ANALYSIS_RefL0100N1504_confidence_intervals.txt", unpack=True, skiprows=2)
             redshift = data[0]
             mean = data[1]
             median = data[2]
@@ -187,7 +187,7 @@ def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
                 std3_values.append((data[7][idx], data[8][idx]))
 
 
-            mean_line = ax.plot(redshift, median, color='black', label="$\mathrm{RefL0100N1504}\ <\mathrm{DM}>$", linewidth=2, zorder=1)
+            mean_line = ax.plot(redshift, mean, color='black', label="$\mathrm{RefL0100N1504}\ <\mathrm{DM}>$", linewidth=2, zorder=1)
 
             #std1_values = []
             #std2_values = []
@@ -216,7 +216,12 @@ def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
                     upper_errorbar = frb["DM_MW"]
                     errors = (lower_errorbar, upper_errorbar)
                     colours = np.array(list(map(mpl.colors.to_hex, cmasher.chroma(np.linspace(0.15, 0.80, len(frb_obs_list))))))
-                    im = ax.errorbar(redshift, dm, yerr=errors, color=colours[idx], marker=frb['Marker'], markersize=6, zorder=10000)
+                    if frb["Repeater"]:
+                        facecolor=None
+                    else:
+                        facecolor = colours[idx]
+
+                    im = ax.errorbar(redshift, dm, yerr=errors, color=colours[idx], markerfacecolor=facecolor, marker=frb['Marker'], markersize=6, zorder=10000)
                     frb_handles.append(im)
                     frb_labels.append(frb["Label"])
                     #if frb["Repeater"]:
@@ -252,6 +257,12 @@ def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
     ax.set_xlim(z_min, z_max)
     ax.set_ylim(sigma_min, sigma_max)
 
+    p13 = cosmology.Planck13
+    ax1_twin = math_tools.cosmology.make_lookback_time_axis(ax, cosmo=p13, z_range=(z_min, z_max))
+    ax1_twin.set_xlabel("$\mathrm{Lookback\ Time\ [Gyr]}$")
+
+
+
     # This forces the x-tick labels to be integers for consistancy.
     # This fixes a problem I was having where it changed from ints to floats
     # seemingly randomly for different number of models.
@@ -267,7 +278,7 @@ def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
         )
     )
 
-    mean_line = mlines.Line2D([], [], color='black', linewidth=2, label=r"$\mathrm{EAGLE\ \langle DM \rangle}$")
+    mean_line = mlines.Line2D([], [], color='black', linewidth=2, label=r"$\langle \mathrm{DM_{cosmo}} \rangle$")
     sig1_legend = mpatches.Patch(color=sigma_colours[0], label=r"$1\ \sigma_\mathrm{CI}$", alpha=0.35)
     sig2_legend = mpatches.Patch(color=sigma_colours[1], label=r"$2\ \sigma_\mathrm{CI}$", alpha=0.35)
     sig3_legend = mpatches.Patch(color=sigma_colours[2], label=r"$3\ \sigma_\mathrm{CI}$", alpha=0.35)
@@ -276,7 +287,7 @@ def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
     # Create legends for the FRBs and EAGLE data
     # They need to be seperate to make better use of space.
     sigma_legend = ax.legend(handles=[mean_line, sig1_legend, sig2_legend, sig3_legend], loc='lower right', frameon=False, fontsize=11)
-    frb_legend = ax.legend(handles=frb_handles, labels=frb_labels, loc='upper left', frameon=False, fontsize=11)
+    frb_legend = ax.legend(handles=frb_handles, labels=frb_labels, loc='upper left', fontsize=11, framealpha=0.3)
 
     # Add the legends manually to the current Axes.
     ax.add_artist(sigma_legend)
@@ -286,109 +297,161 @@ def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
     ax.set_ylim(0.0001, 1100)
 
     output_file_name = os.path.join(plot_output_path, f"{plot_output_name}{plot_output_format}")
-    plt.savefig(output_file_name, dpi=200)
+    plt.savefig(output_file_name, dpi=300)
+
+
+
+
+def calc_least_squares_frb(frb_obs):
+    data = np.loadtxt("analysis_outputs/shuffled/ANALYSIS_RefL0100N1504_confidence_intervals.txt", unpack=True, skiprows=2)
+    redshift = data[0]
+    mean = data[1]
+    median = data[2]
+
+    sigma_ci = []
+
+    std1_values = []
+    for idx, z in enumerate(redshift):
+        sigma_ci.append((data[4][idx] - data[3][idx]) / 2)
+
+
+
+
+    from scipy.interpolate import interp1d
+
+    model = interp1d(mean, redshift)
+    model_ci = interp1d(redshift, sigma_ci)
+    least_sq = 0
+    for frb in frb_obs:
+        estimate = model(frb["DM"] - frb["DM_MW"])
+        estimate_ci = model_ci(estimate)
+
+        measured = frb["z"]
+
+        frb_var = ((frb["DM_MW"] + 130) / 2)**2
+
+        var = estimate_ci**2 + ((frb["DM_MW"] + 130) / 2)**2
+
+
+        print(estimate, measured, frb_var, var)
+
+        least_sq = (estimate - measured)**2 / var
+
+    print(least_sq)
+
 
 
 if __name__ == "__main__":
     print_tools.print_header("Sigma-z Relation")
 
-    output_file_name = "analysis_plots/RefL0100N1504_three_sigma_CI_with_localised_frbs"
+    output_file_name = "analysis_plots/shuffled/RefL0100N1504_three_sigma_CI_with_localised_frbs"
 
 
     ##############################################################
     # LOCALISED FRB'S DATA
 
     frb_obs_list = [
-        # Bannister Localised FRB
-        {"DM": np.array([361.42]),
-        "DM_MW": np.array([71.5]),
-        "z": np.array([0.4214]),
-        "z_err": 0,
-        "Label": "FRB180924",# (Bannister+2019)",
-        "Color": '#900c5c',
-        "Marker": "o",
-        "Repeater": False,
-         },
-
-        #Prochaska Localised FRB
-        {"DM": np.array([589.27]),
-        "DM_MW": np.array([64]),
-        "z": np.array([0.47550]),
-        "z_err": np.array([0.000]),
-        "Label": "FRB181112",# (Prochaska+2019)",
-        "Color": "#b84721",
-        "Marker": "o",
-        "Repeater": False,
-        },
-
-        # Macquart 2020
-        {"DM": np.array([363.6]),
-        "DM_MW": np.array([57.3]),
-        "z": np.array([0.2913]),
-        "z_err": np.array([0]),
-        "Label": "FRB190102",# (Macquart+2020)",
-        "Color": "black",
-        "Marker": "o",
-        "Repeater": False,
-        },
-
-        # Macquart 2020
-        {"DM": np.array([339.5]),
-        "DM_MW": np.array([37.2]),
-        "z": np.array([0.1178]),
-        "z_err": np.array([0]),
-        "Label": "FRB190608",# (Macquart+2020)",
-        "Color": "black",
-        "Marker": "o",
-        "Repeater": False,
-        },
-
-        # Macquart 2020
-        {"DM": np.array([593.1]),
-        "DM_MW": np.array([37]),
-        "z": np.array([0.522]),
-        "z_err": np.array([0.000]),
-        "Label": "FRB190711",# (Macquart+2020)",
-        "Color": "Black",
-        "Marker": "o",
-        "Repeater": False,
-        },
-
-
-
-        # Ravi Localised FRB
-        {"DM": np.array([760.8]),
-        "DM_MW": np.array([87]),
-        "z": np.array([0.66]),
-        "z_err": 0,
-        "Label": "FRB190523",# (Ravi+2019)",
-        "Color": '#b18d05',
-        "Marker": "o",
-        "Repeater": False,
-        },
-
-
-        #Original Repeater
-        {"DM": np.array([557]),
-        "DM_MW": np.array([188]),
-        "z": np.array([0.19273]),
-        "z_err": np.array([0.000]),
-        "Label": "FRB121102",# (Tendulkar+2017)",
-        "Color": "Grey",
-        "Marker": "*",
-        "Repeater": True,
-        },
 
         # CHIME Localised FRB
         {"DM": np.array([348.79]),
         "DM_MW": np.array([199]),
         "z": np.array([0.0337]),
         "z_err": np.array([0.0002]),
-        "Label": "FRB180916",# (Marcote+2020)",
+        "Label": "FRB 180916",# (Marcote+2020)",
         "Color": "#4d0378",
-        "Marker": "*",
+        "Marker": "v",
         "Repeater": True,
         },
+        # Macquart 2020
+        {"DM": np.array([339.5]),
+        "DM_MW": np.array([37.2]),
+        "z": np.array([0.1178]),
+        "z_err": np.array([0]),
+        "Label": "FRB 190608",# (Macquart+2020)",
+        "Color": "black",
+        "Marker": "o",
+        "Repeater": False,
+        },
+
+        #Original Repeater
+        {"DM": np.array([557]),
+        "DM_MW": np.array([188]),
+        "z": np.array([0.19273]),
+        "z_err": np.array([0.000]),
+        "Label": "FRB 121102",# (Tendulkar+2017)",
+        "Color": "Grey",
+        "Marker": "v",
+        "Repeater": True,
+        },
+
+        # Macquart 2020
+        {"DM": np.array([364.5]),
+        "DM_MW": np.array([57.3]),
+        "z": np.array([0.2913]),
+        "z_err": np.array([0]),
+        "Label": "FRB 190102",# (Macquart+2020)",
+        "Color": "black",
+        "Marker": "o",
+        "Repeater": False,
+        },
+
+        # Bannister Localised FRB
+        {"DM": np.array([361.42]),
+        "DM_MW": np.array([40.5]),
+        "z": np.array([0.3214]),
+        "z_err": 0,
+        "Label": "FRB 180924",# (Bannister+2019)",
+        "Color": '#900c5c',
+        "Marker": "o",
+        "Repeater": False,
+         },
+
+        # Macquart 2020
+        {"DM": np.array([321.4]),
+        "DM_MW": np.array([57.8]),
+        "z": np.array([0.378]),
+        "z_err": np.array([0.000]),
+        "Label": "FRB 190611",# (Macquart+2020)",
+        "Color": "black",
+        "Marker": "o",
+        "Repeater": False,
+        },
+
+        #Prochaska Localised FRB
+        {"DM": np.array([589.27]),
+        "DM_MW": np.array([40.2]),
+        "z": np.array([0.47550]),
+        "z_err": np.array([0.000]),
+        "Label": "FRB 181112",# (Prochaska+2019)",
+        "Color": "#b84721",
+        "Marker": "o",
+        "Repeater": False,
+        },
+
+        # Macquart 2020
+        {"DM": np.array([593.1]),
+        "DM_MW": np.array([56.5]),
+        "z": np.array([0.522]),
+        "z_err": np.array([0.000]),
+        "Label": "FRB 190711",# (Macquart+2020)",
+        "Color": "Black",
+        "Marker": "o",
+        "Repeater": False,
+        },
+
+        # Ravi Localised FRB
+        {"DM": np.array([760.8]),
+        "DM_MW": np.array([37]),
+        "z": np.array([0.66]),
+        "z_err": 0,
+        "Label": "FRB 190523",# (Ravi+2019)",
+        "Color": '#b18d05',
+        "Marker": "o",
+        "Repeater": False,
+        },
+
+
+
 
 
 
@@ -436,6 +499,8 @@ if __name__ == "__main__":
         all_models.append(model)
 
 
-    plot_sigmaz_relation(all_models, output_file_name, "", frb_obs=frb_obs_list)
+    plot_sigmaz_relation(all_models, output_file_name, "", frb_obs=frb_obs_list, plot_output_format=".png")
+
+    calc_least_squares_frb(frb_obs_list)
 
     print_tools.print_footer()

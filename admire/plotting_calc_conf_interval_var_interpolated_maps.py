@@ -19,6 +19,8 @@ from pyx import math_tools
 
 from model import DMzModel
 
+import cmasher
+
 #the properties of the plot
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
@@ -35,7 +37,7 @@ plt.rc("ytick", right=True)
 
 def calc_std_bin_idx_from_pdf(pdf, num_sigma=1):
     """
-    Calculates the bin index of a standard deviation from a pdf. 
+    Calculates the bin index of a standard deviation from a pdf.
 
     """
 
@@ -60,7 +62,7 @@ def calc_std_bin_idx_from_pdf(pdf, num_sigma=1):
 
     cdf = np.cumsum(pdf)
     cdf = cdf/cdf[-1]
-    
+
 
     std_lower_idx = np.where(cdf >= std_lower_thresh)[0][0]
     std_upper_idx = np.where(cdf <= std_upper_thresh)[0][-1] + 1
@@ -107,8 +109,8 @@ def plot_one_sigma(redshifts, sigma):
     fig, ax = plt.subplots(ncols=1, nrows=1, constrained_layout=True)
 
     plt.plot(redshifts, sigma)
-    
-    
+
+
     plt.xlabel('Redshift')
     plt.ylabel('DM Cumulative Sum Sigma RefL0050N0752\n [$\mathrm{pc\ cm^{-3}}$]')
     plt.legend(frameon=False, fontsize=16)
@@ -120,7 +122,7 @@ def run(params):
     # Create the file paths for the master file and the output file.
     masterfile = os.path.join(params["datadir"], params["masterfilename"] + ".hdf5")
     outputfile = os.path.join(params["outputdir"], params["outputfilename"])
-    
+
     # Open the master and output file
     with h5py.File(masterfile, mode="r") as master, open(outputfile, mode='w') as output:
         num_slices = params["num_slices"]
@@ -130,7 +132,7 @@ def run(params):
         conf_interval_width = np.zeros(num_slices)
 
         hist_list = []
-        
+
         pbar = tqdm(range(num_slices))
         for index in pbar:
             pbar.set_description(f"Slice: {index}")
@@ -154,8 +156,8 @@ def run(params):
             pdf = hist/Bin_Widths/np.sum(hist)
 
             conf_interval_width[index] = calc_sigma(pdf, bins)
-            conf_interval_variance[index] = conf_interval_width[index]**2  
-        
+            conf_interval_variance[index] = conf_interval_width[index]**2
+
         var_cumsum = np.cumsum(conf_interval_variance)
         std_cumsum = np.sqrt(var_cumsum)
 
@@ -174,14 +176,32 @@ def run(params):
 
 
 
-    
+
 
 
 
 if __name__ == "__main__":
+    colours = np.array(
+        list(
+            map(mpl.colors.to_hex, cmasher.rainforest(np.linspace(0.15, 0.80, 4)))
+
+            )
+        )
+
+    plot_style_dict = {
+        "RefL0100N1504": ("#000000", 3, "-"),
+        "RefL0025N0376": (colours[2], 2, ":"),
+        "RefL0025N0752": (colours[1], 2, "--"),
+        "RefL0050N0752": (colours[0], 2, ":"),
+        "RecalL0025N0752": (colours[3], 2, "--"),
+
+    }
+
+
+
     print_tools.script_info.print_header("ADMIRE PIPELINE")
-    params = param_tools.dictconfig.read(sys.argv[1], "VarianceCorrelation")
-    run(params)
+    #params = param_tools.dictconfig.read(sys.argv[1], "VarianceCorrelation")
+    #run(params)
 
     colours = np.array(list(map(mpl.colors.to_hex, cmasher.chroma(np.linspace(0.10, 0.90, 7)))))[[0, 2, 4, 3, 5, 1, 6]]
     simulations = ["RefL0025N0376", "RefL0025N0752", "RecalL0025N0752", "RefL0050N0752", "RefL0100N1504"]
@@ -194,13 +214,14 @@ if __name__ == "__main__":
         z, var, mean, std, var_cumsum, cumsum_std = data
 
 
-        plt.plot(z, cumsum_std, color=colours[idx], label=sim)
-    
-    
+        plt.plot(z, cumsum_std, color=plot_style_dict[sim][0], label=sim,
+                linewidth=plot_style_dict[sim][1], linestyle=plot_style_dict[sim][2])
+
+
     plt.xlabel('Redshift')
-    plt.ylabel('DM Cumulative Sum 68\% Confidence Interval\n [$\mathrm{pc\ cm^{-3}}$]')
+    plt.ylabel('$\mathrm{Cumulative}\ \sigma_\mathrm{CI}$\n [$\mathrm{pc\ cm^{-3}}$]')
     plt.legend(frameon=False, fontsize=16)
-    plt.savefig("CONFIDENCE_INTERVAL_VARIANCE.png", dpi=200)
+    plt.savefig("CONFIDENCE_INTERVAL_VARIANCE_2.pdf", dpi=200)
 
 
 
@@ -218,7 +239,7 @@ if __name__ == "__main__":
     #c
     #colours = ['red', 'blue', 'green', 'orange', 'black']
 
-    
+
 
 
 
