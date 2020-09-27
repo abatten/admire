@@ -1,0 +1,59 @@
+[Interpolation]
+Verbose : True
+ProgressBar : True
+MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/maps/T4EOS/DM
+OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output/
+RedshiftMin : 0.0
+RedshiftMax : 3.01650
+DistSpacing : 50
+MinTransLength : 10
+BoxSize : 50
+NumPixels : 16000
+InterpFileName : shuffled_interpolated_dm_map
+MasterFileName : master_shuffled_interpolated_dm_maps
+NewProjected : True
+
+
+[InterpMaster]
+Verbose : True
+ProgressBar : True
+MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/maps/T4EOS/DM
+OutputDir : /var/tmp/jobfs
+InterpFileName : shuffled_interpolated_dm_map
+MasterFileName : master_shuffled_interpolated_dm_maps
+Header : HEADER
+Dataset : DM
+
+
+[SumMaster]
+masterdir : /var/tmp/jobfs
+outputdir : /var/tmp/jobfs
+masterfilename : master_shuffled_interpolated_dm_maps.hdf5
+sumfilename : sum_shuffled_dm_maps
+header : HEADER
+dataset : DM
+numpixels : 16000
+num_slices : 131
+
+[1DHist]
+verbose : True
+datadir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output/T4EOS
+outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output/T4EOS
+plotdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/plot/T4EOS
+num_sub_maps : 25
+sub_map_name : sum_shuffled_dm_maps
+min_bin : 0
+max_bin : 5
+num_bins : 1001
+plot_name : DM_1D_hist_plot
+hist_file : DM_1D_hist_data
+num_slices : 131
+
+[VarianceCorrelation]
+datadir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS
+outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS
+masterfilename : master_dm_maps_idx_corrected
+header : header
+dataset : dm
+outputfilename : confidence_interval_varience.txt
+num_slices : 131

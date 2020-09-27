@@ -270,7 +270,7 @@ def pixels_to_length(pixels, boxsize, num_pixels):
     return length
 
 
-def get_redshift_from_header(path, NewProjected=False):
+def get_redshift_from_header(path, NewProjected=True):
     """
     Parameters
     ----------
@@ -290,7 +290,7 @@ def get_redshift_from_header(path, NewProjected=False):
         else:
             header_name = "HEADER"
 
-        redshift = ds[header_name].attrs["Redshift"]
+        redshift = ds["Header"].attrs["Redshift"]
         if redshift < 1e-10:
             redshift = 0.0
         return redshift
@@ -313,6 +313,7 @@ def get_map_redshifts(paths, NewProjected=False):
     redshifts = np.empty(len(paths))
 
     for i, path in enumerate(paths):
+        print(path)
         redshifts[i] = get_redshift_from_header(path, NewProjected)
 
     return redshifts

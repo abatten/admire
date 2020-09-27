@@ -30,7 +30,7 @@ NewProjected : True
 Verbose : True
 ProgressBar : True
 MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0050N0752/all_snapshot_data/maps/T4EOS/DM
-OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0050N0752/all_snapshot_data/output/T4EOS
+OutputDir : /var/tmp/jobfs
 InterpFileName : interpolated_dm_map_idx_corrected
 MasterFileName : master_dm_maps_idx_corrected
 Header : HEADER
@@ -38,8 +38,8 @@ Dataset : DM
 
 
 [SumMaster]
-masterdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0050N0752/all_snapshot_data/output/T4EOS
-outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0050N0752/all_snapshot_data/output/T4EOS
+masterdir : /var/tmp/jobfs
+outputdir : /var/tmp/jobfs
 masterfilename : master_dm_maps_idx_corrected.hdf5
 sumfilename : sum_dm_maps_idx_corrected
 header : HEADER

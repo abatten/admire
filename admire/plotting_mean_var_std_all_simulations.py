@@ -54,6 +54,8 @@ def plot_statistic(data_files, stat_type, output_format=".png"):
         "RefL0025N0752": (colours[1], 2, "--"),
         "RefL0050N0752": (colours[0], 2, ":"),
         "RecalL0025N0752": (colours[3], 2, "--"),
+        "NoAGNL0050N0752": (colours[2], 2, "--"),
+        "AGNdT9L0050N0752": (colours[1], 2, "--"),
 
     }
 
@@ -66,57 +68,57 @@ def plot_statistic(data_files, stat_type, output_format=".png"):
     data_dict = {
         "mean" : {
             "col": 1,
-            "output_name": "RefL0100N1504_mean_v_redshift",
+            "output_name": "AGN_mean_v_redshift",
             "ylabel": "$\langle \mathrm{DM_{cosmic}} \\rangle\ \left[\mathrm{pc\ cm^{-3}} \\right]$"
         },
         "median" : {
             "col": 2,
-            "output_name": "RefL0100N1504_median_v_redshift",
+            "output_name": "AGN_median_v_redshift",
             "ylabel": "$\mathrm{Median\ DM_{cosmic}}\ \left[\mathrm{pc\ cm^{-3}} \\right]$"
         },
         "variance" : {
             "col": 3,
-            "output_name": "RefL0100N1504_variance_v_redshift",
+            "output_name": "AGN_variance_v_redshift",
             "ylabel": "$\sigma_{Var}^2\ \left[\mathrm{pc\ cm^{-3}} \\right]$"
         },
         "sigma_var" : {
             "col": 4,
-            "output_name": "RefL0100N1504_sigma_var_v_redshift",
+            "output_name": "AGN_sigma_var_v_redshift",
             "ylabel": "$\sigma_\mathrm{Var}\ \left[\mathrm{pc\ cm^{-3}} \\right]$"
         },
         "ci_width" : {
             "col": 7,
-            "output_name": "RefL0100N1504_ci_width_v_redshift",
+            "output_name": "AGN_ci_width_v_redshift",
             "ylabel": "\\textrm{Confidence Interval Width}\ $\left[\mathrm{pc\ cm^{-3}} \\right]$"
         },
         "sigma_ci" : {
             "col": 8,
-            "output_name": "RefL0100N1504_sigma_ci_v_redshift",
+            "output_name": "AGN_sigma_ci_v_redshift",
             "ylabel": "$\sigma_\mathrm{CI}\ \left[\mathrm{pc\ cm^{-3}} \\right]$"
         },
         "f_ng": {
             "col": None,
-            "output_name": "RefL0100N1504_fng_v_redshift",
+            "output_name": "AGN_fng_v_redshift",
             "ylabel": "$f_\mathrm{NG} =  1 - \sigma_\mathrm{CI}/\sigma_\mathrm{Var}$",
         },
         "sigma_ci_mean": {
             "col": None,
-            "output_name": "RefL0100N1504_sigma_ci_mean_v_redshift",
+            "output_name": "AGN_sigma_ci_mean_v_redshift",
             "ylabel": "$\sigma_\mathrm{CI}/\langle \mathrm{DM_{cosmic}} \\rangle$",
         },
         "sigma_var_mean": {
             "col": None,
-            "output_name": "RefL0100N1504_sigma_var_mean_v_redshift",
+            "output_name": "AGN_sigma_var_mean_v_redshift",
             "ylabel": "$\sigma_\mathrm{Var}/\langle \mathrm{DM_{cosmic}} \\rangle$",
         },
         "sigma_ci_median": {
             "col": None,
-            "output_name": "RefL0100N1504_sigma_ci_median_v_redshift",
+            "output_name": "AGN_sigma_ci_median_v_redshift",
             "ylabel": "$\sigma_\mathrm{CI}/\mathrm{Median\ DM_{cosmic}}$",
         },
         "sigma_var_median": {
             "col": None,
-            "output_name": "RefL0100N1504_sigma_var_median_v_redshift",
+            "output_name": "AGN_sigma_var_median_v_redshift",
             "ylabel": "$\sigma_\mathrm{Var}/\mathrm{Median\ DM_{cosmic}}$",
         },
 
@@ -186,11 +188,12 @@ def plot_statistic(data_files, stat_type, output_format=".png"):
     ax.legend()
     ax.set_xlabel("\\textrm{{Redshift}}")
     ax.set_ylabel(data_dict[stat_type]["ylabel"])
-    plt.savefig(f"analysis_plots/shuffled/{data_dict[stat_type]['output_name']}{output_format}")
+    print(f"./analysis_plots/shuffled/{data_dict[stat_type]['output_name']}{output_format}")
+    plt.savefig(f"./analysis_plots/shuffled/{data_dict[stat_type]['output_name']}{output_format}")
 
 
 if __name__ == "__main__":
-    all_files = sorted(glob("./analysis_outputs/shuffled/*Re*mean_var_std_from_pdf*.txt"))
+    all_files = sorted(glob("./analysis_outputs/shuffled/*L0050*mean_var_std_from_pdf*.txt"))
     all_files.reverse()
 
     print(all_files)
