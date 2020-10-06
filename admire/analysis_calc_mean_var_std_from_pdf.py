@@ -234,6 +234,38 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
     }
 
+    NoAGNL0050N0752 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_NoAGNL0050N0752/all_snapshot_data/shuffled_output/",
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "NoAGNL0050N0752",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.arctic_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
+    AGNdT9L0050N0752 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_AGNdT9L0050N0752/all_snapshot_data/shuffled_output/",
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "AGNdT9L0050N0752",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.arctic_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
     RefL0100N1504 = {
         #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
         "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/shuffled_output/",
@@ -280,12 +312,14 @@ if __name__ == "__main__":
 
     model_dicts = [
     #    RefL0100N1504,
-         RefL0025N0376,
+    #     RefL0025N0376,
     #    RefL0025N0752,
     #   RecalL0025N0752,
     #    RefL0050N0752,
     #RandL0100,
     #RandL0025,
+    NoAGNL0050N0752,
+    AGNdT9L0050N0752,
     ]
 
 #######################################################################

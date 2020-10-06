@@ -12,6 +12,8 @@ profile
 *.png
 *.eps
 *.pdf
+*.txt
+/here_be_dragons/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

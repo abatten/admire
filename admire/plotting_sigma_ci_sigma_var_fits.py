@@ -95,10 +95,12 @@ def plot_fit(plot_params, data_params=None, stat_types=["Mean"], simname="RefL01
 
     sim_idx_dict = {
         "RefL0100N1504": 0,
-        "RefL0025N0376": 1,
+        "RefL0050N0752": 1,
         "RefL0025N0752": 2,
-        "RecalL0025N0752": 3,
-        "RefL0050N0752": 4,
+        "RefL0025N0376": 3,
+        "RecalL0025N0752": 4,
+        "NoAGNL0050N0752": 5,
+        "AGNdT9L0050N0752": 6,
     }
     sim_idx = sim_idx_dict[simname]
 
@@ -202,7 +204,7 @@ def plot_fit(plot_params, data_params=None, stat_types=["Mean"], simname="RefL01
 
 
     output_name = \
-        f"./analysis_plots/shuffled/{plot_params['output_name']}{plot_params['output_format']}"
+        f"./analysis_plots/shuffled/{simname}_{plot_params['output_name']}{plot_params['output_format']}"
 
 
     print(output_name)
@@ -244,7 +246,10 @@ def plot_fit2(plot_params, data_params=None, stat_types=["Mean"], simname="RefL0
         "RefL0025N0752": 2,
         "RecalL0025N0752": 3,
         "RefL0050N0752": 4,
+        "NoAGNL0050N0752": 5,
+        "AGNdT9L0050N0752": 6,
     }
+
     sim_idx = sim_idx_dict[simname]
 
 
@@ -415,10 +420,15 @@ if __name__ == "__main__":
 
     }
 
+
+    simulation = "RefL0050N0752"
+
+
+
     data_params = {
-        "filename": "./analysis_outputs/shuffled/ANALYSIS_RefL0100N1504_mean_var_std_from_pdf.txt"
+        "filename": f"./analysis_outputs/shuffled/ANALYSIS_{simulation}_mean_var_std_from_pdf.txt"
     }
 
 
 
-    plot_fit(sigma_plot_params, data_params=data_params, stat_types=["sigmaCI", "sigmaVar"], simname="RefL0100N1504")
+    plot_fit(sigma_plot_params, data_params=data_params, stat_types=["sigmaCI", "sigmaVar"], simname=simulation)

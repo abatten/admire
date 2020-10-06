@@ -110,6 +110,8 @@ def plot_fit(plot_params, data_params=None, stat_type="Mean", simname="RefL0100N
         "RefL0025N0752": 2,
         "RecalL0025N0752": 3,
         "RefL0050N0752": 4,
+        "NoAGNL0050N0752": 5,
+        "AGNdT9L0050N0752": 6,
     }
     sim_idx = sim_idx_dict[simname]
 
@@ -224,7 +226,7 @@ def plot_fit(plot_params, data_params=None, stat_type="Mean", simname="RefL0100N
 
 
     output_name = \
-        f"./analysis_plots/shuffled/{plot_params['output_name']}{plot_params['output_format']}"
+        f"./analysis_plots/shuffled/{simname}_{plot_params['output_name']}{plot_params['output_format']}"
 
 
     print(output_name)
@@ -245,6 +247,10 @@ def plot_fit(plot_params, data_params=None, stat_type="Mean", simname="RefL0100N
     ax3.set_xlabel("\\textrm{Redshift}")
     ax3.set_xlim(0.000001, 3.013)
 
+
+    plt.setp(ax1.get_xticklabels(), visible=False)
+    plt.setp(ax2.get_xticklabels(), visible=False)
+    ax1.spines['bottom'].set_linewidth(0)
     ax1.legend()
     plt.tight_layout()
     plt.savefig(output_name)
@@ -272,7 +278,7 @@ if __name__ == "__main__":
         "linear_data": mean_linear_fit_filename,
         "non_linear_data": mean_non_linear_fit_filename,
         "output_name": "Mean_DM_Linear_Non_Linear_Fits_None_Uncert",
-        "output_format": ".eps",
+        "output_format": ".png",
         "ylabel": "$\mathrm{\langle DM_{cosmic}\\rangle \ [pc\ cm^{-3}] }$",
         "lin_lstyle": ":",
         "lin_lwidth": 3,
@@ -294,7 +300,7 @@ if __name__ == "__main__":
         "linear_data": median_linear_fit_filename,
         "non_linear_data": median_non_linear_fit_filename,
         "output_name": "Median_DM_Linear_Non_Linear_Fits_None_Uncert",
-        "output_format": ".eps",
+        "output_format": ".png",
         "ylabel": "$\mathrm{Median\ DM_{cosmic} \ [pc\ cm^{-3}] }$",
         "lin_lstyle": ":",
         "lin_lwidth": 3,
@@ -311,11 +317,17 @@ if __name__ == "__main__":
 
     }
 
+
+    simulation = "RefL0050N0752"
+
+
+
+
     data_params = {
-        "filename": "./analysis_outputs/shuffled/ANALYSIS_RefL0100N1504_mean_var_std_from_pdf.txt"
+        "filename": f"./analysis_outputs/shuffled/ANALYSIS_{simulation}_mean_var_std_from_pdf.txt"
     }
 
 
 
-    plot_fit(mean_plot_params, data_params=data_params, stat_type="Mean", simname="RefL0100N1504")
-    plot_fit(median_plot_params, data_params=data_params, stat_type="Median", simname="RefL0100N1504")
+    plot_fit(mean_plot_params, data_params=data_params, stat_type="Mean", simname=simulation)
+    plot_fit(median_plot_params, data_params=data_params, stat_type="Median", simname=simulation)

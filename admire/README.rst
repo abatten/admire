@@ -23,24 +23,24 @@ This contains random utilities. Most of these have been replaced by using my uti
 PIPELINE SCRIPTS
 ****************
 
-step1_convert_npz_to_hdf5.py
+pipeline_step01_convert_npz_to_hdf5.py
 ----------------------------
 
 
-step2_generate_interpolated_maps.py
+pipeline_step02_generate_interpolated_maps.py
 -----------------------------------
 
 
-step3_generate_interpolated_master.py
+pipeline_step03_generate_interpolated_master.py
 -------------------------------------
 
-step4_perform_submap_sum.py
+pipeline_step04_perform_submap_sum.py
 ---------------------------
 
-step5_generate_slice_hist.py
+pipeline_step05_generate_slice_hist.py
 ----------------------------
 
-step6_sum_sub_map_hist.py
+pipeline_step06_sum_sub_map_hist.py
 -------------------------
 
 step7_plot_dmz_relation.py
