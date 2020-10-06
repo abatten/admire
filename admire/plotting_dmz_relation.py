@@ -86,7 +86,7 @@ def make_lookback_axis3(ax, cosmo, max_redshift):
 
 
 def plot_dmz_relation(models, plot_output_name="dmz_relation",
-                      plot_output_path=None, plot_output_format=".pdf",
+                      plot_output_path=None, plot_output_format=".png",
                       logy=False, z_min=0.0, z_max=3.0, dm_min=0, dm_max=4000,
                       axis=None, verbose=True):
     """
@@ -285,7 +285,7 @@ def plot_dmz_relation(models, plot_output_name="dmz_relation",
 if __name__ == "__main__":
     print_tools.print_header("DM-z Relation")
 
-    output_file_name = "analysis_plots/shuffled/RefL0100N1504_Mean"
+    output_file_name = "analysis_plots/shuffled/FBsigmaL0050N0752_Mean"
     #colours = ['#66c2a5','#fc8d62','#8da0cb','#e78ac3','#a6d854']
     #colours = ['#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e']
     #colours = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462']
@@ -532,6 +532,87 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
     }
 
+    NoAGNL0050N0752 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_NoAGNL0050N0752/all_snapshot_data/shuffled_output/",
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "NoAGNL0050N0752",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.arctic_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
+    AGNdT9L0050N0752 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_AGNdT9L0050N0752/all_snapshot_data/shuffled_output/",
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "AGNdT9L0050N0752",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.arctic_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
+    FBZL0050N0752 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output/",
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "FBZL0050N0752",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.arctic_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
+    FBsigmaL0050N0752 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBsigmaL0050N0752/all_snapshot_data/shuffled_output/",
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "FBsigmaL0050N0752",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.ocean_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
+    FBconstL0050N0752 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBconstL0050N0752/all_snapshot_data/shuffled_output/",
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "FBconstL0050N0752",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.ocean_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
+
 
     model_dicts = [
 
@@ -548,8 +629,12 @@ if __name__ == "__main__":
         batten2020_conf_int,
         batten2020_mean,
 
-        batten2020,
-
+        #batten2020,
+    #NoAGNL0050N0752,
+    #AGNdT9L0050N0752,
+    #FBZL0050N0752,
+    FBsigmaL0050N0752,
+    #FBconstL0050N0752,
     #    batten2020_other,
     #RandGaussL0100,
     ]

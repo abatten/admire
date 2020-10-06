@@ -42,7 +42,7 @@ def plot_statistic(data_files, stat_type, output_format=".png"):
 
     colours = np.array(
         list(
-            map(mpl.colors.to_hex, cmasher.rainforest(np.linspace(0.15, 0.80, 4)))
+            map(mpl.colors.to_hex, cmasher.rainforest(np.linspace(0.15, 0.80, 5)))
 
             )
         )
@@ -52,10 +52,13 @@ def plot_statistic(data_files, stat_type, output_format=".png"):
         "RefL0100N1504": ("#000000", 3, "-"),
         "RefL0025N0376": (colours[2], 2, ":"),
         "RefL0025N0752": (colours[1], 2, "--"),
-        "RefL0050N0752": (colours[0], 2, ":"),
+        "RefL0050N0752": ("#000000", 2, "-"),
         "RecalL0025N0752": (colours[3], 2, "--"),
-        "NoAGNL0050N0752": (colours[2], 2, "--"),
-        "AGNdT9L0050N0752": (colours[1], 2, "--"),
+        "NoAGNL0050N0752": (colours[0], 2, "-"),
+        "AGNdT9L0050N0752": (colours[1], 2, "-"),
+        "FBZL0050N0752": (colours[2], 4, "--"),
+        "FBconstL0050N0752": (colours[3], 2, "--"),
+        "FBsigmaL0050N0752": (colours[4], 2, "--"),
 
     }
 

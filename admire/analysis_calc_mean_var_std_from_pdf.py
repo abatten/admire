@@ -266,6 +266,55 @@ if __name__ == "__main__":
         "plot_toggle"  : True,
     }
 
+    FBZL0050N0752 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output/",
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "FBZL0050N0752",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.arctic_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
+    FBsigmaL0050N0752 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBsigmaL0050N0752/all_snapshot_data/shuffled_output/",
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "FBsigmaL0050N0752",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.arctic_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
+    FBconstL0050N0752 = {
+        "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBconstL0050N0752/all_snapshot_data/shuffled_output/",
+        #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
+        #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
+        "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
+        "label"        : "FBconstL0050N0752",
+        "file_format"  : "hdf5",
+        "category"     : "2D-hydrodynamic",
+        "dm_scale"     : "linear",
+        "color"        : cmasher.arctic_r,
+        "linestyle"    : None,
+        "linewidth"    : None,
+        "marker"       : None,
+        "plot_toggle"  : True,
+    }
+
+
     RefL0100N1504 = {
         #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
         "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/shuffled_output/",
@@ -318,8 +367,11 @@ if __name__ == "__main__":
     #    RefL0050N0752,
     #RandL0100,
     #RandL0025,
-    NoAGNL0050N0752,
-    AGNdT9L0050N0752,
+    #NoAGNL0050N0752,
+    #AGNdT9L0050N0752,
+    FBZL0050N0752,
+    FBsigmaL0050N0752,
+    FBconstL0050N0752,
     ]
 
 #######################################################################

@@ -4,7 +4,7 @@ import os
 import h5py
 from pyx.math_tools import cosmology as pyxcosmo
 
-output_dir_name = "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_AGNdT9L0050N0752/all_snapshot_data/shuffled_output/"
+output_dir_name = "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBconstL0050N0752/all_snapshot_data/shuffled_output/"
 #output_dir_name = "/fred/oz071/abatten/ADMIRE_ANALYSIS/Random_Gaussian_Maps/RandL0025"
 #output_dir_name = "/fred/oz071/abatten/ADMIRE_ANALYSIS/Random_Gaussian_Maps/RandL0100"
 
