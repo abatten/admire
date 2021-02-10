@@ -86,8 +86,10 @@ def calc_stats_from_model(all_models):
     std_lim_l, std_lim_u = sigma_to_pdf_percentiles(1)
 
     for model in all_models:
-        output_file_name = f"./analysis_outputs/shuffled/ANALYSIS_{model.label}_mean_var_std_from_pdf.txt"
+        output_file_name = f"./analysis_outputs/shuffled/ANALYSIS_{model.label}_mean_var_std_from_pdf_NEW.txt"
 
+
+        print(output_file_name)
 
         redshifts = model.z_bins
 
@@ -113,14 +115,17 @@ def calc_stats_from_model(all_models):
             )
         )
 
+        dm_bins = model.DM_bin_centres#[1:]
+        dm_bin_widths = model.DM_bin_widths
 
         for zidx, z in enumerate(redshifts):
 
             dm_pdf = model.Hist.T[zidx]
-            dm_bins = model.DM_bin_centres#[1:]
-            dm_bin_widths = model.DM_bin_widths
 
             mean = calc_mean_from_pdf(dm_bins, dm_pdf, dx=dm_bin_widths)
+
+            if zidx==0:
+                print(mean)
 
             conf_int_l = calc_val_from_pdf_percentile(dm_bins, dm_pdf, std_lim_l)
             conf_int_u = calc_val_from_pdf_percentile(dm_bins, dm_pdf, std_lim_u)
@@ -131,9 +136,6 @@ def calc_stats_from_model(all_models):
             median = calc_median_from_pdf(dm_bins, dm_pdf)
             std = calc_std_from_pdf(dm_bins, dm_pdf, dx=dm_bin_widths)
             var = calc_variance_from_pdf(dm_bins, dm_pdf, dx=dm_bin_widths)
-
-        #per_arr = std_arr / mean_arr
-
 
             output.write(
                 f"{z:<10.3f} {mean:<10.3f} {median:<10.3f} "
@@ -368,10 +370,10 @@ if __name__ == "__main__":
     #RandL0100,
     #RandL0025,
     #NoAGNL0050N0752,
-    #AGNdT9L0050N0752,
+    AGNdT9L0050N0752,
     FBZL0050N0752,
-    FBsigmaL0050N0752,
-    FBconstL0050N0752,
+    #FBsigmaL0050N0752,
+    #FBconstL0050N0752,
     ]
 
 #######################################################################

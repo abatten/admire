@@ -61,3 +61,15 @@ num_bins : 1001
 plot_name : DM_1D_hist_plot
 hist_file : DM_1D_hist_data
 num_slices : 262
+
+
+
+[VarianceCorrelation]
+datadir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0752/all_snapshot_data/output/T4EOS
+outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0752/all_snapshot_data/output/T4EOS
+masterfilename : master_dm_maps_idx_corrected
+header : header
+dataset : dm
+outputfilename : confidence_interval_varience.txt
+num_slices : 262
+

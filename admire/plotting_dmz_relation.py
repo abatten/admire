@@ -116,105 +116,113 @@ def plot_dmz_relation(models, plot_output_name="dmz_relation",
     if axis:
         ax = axis
     else:
-        fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(16,8))
+        if batten2021 in models:
+            print("Batten2021")
+            fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(16,8))
+            ax1, ax2 = ax[0], ax[1]
+        else:
+            fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(8,8), constrained_layout=True)
+            ax2 = ax
+
 
     # Plot the 2D histogram as an image in the backgound
     for model in models:
-        if model.category == '2D-hydrodynamic' and model.plot_toggle:
-            print_tools.vprint(f"{model.label}", verbose=verbose)
+        if batten2021 in models:
+            if model.category == '2D-hydrodynamic' and model.plot_toggle:
+                print_tools.vprint(f"{model.label}", verbose=verbose)
 
-            # Create a 2D image with different x-y bin sizes.
-            im = plot_tools.plot_2d_array(
-                np.log10(model.Hist),
-                xvals=model.z_bins,
-                yvals=model.DM_bins,
-                cmap=model.color,
-                label="This Work",
-                vmax=-2,
-                vmin=-6,
-                passed_ax=ax[0]
-            )
+                # Create a 2D image with different x-y bin sizes.
+                im = plot_tools.plot_2d_array(
+                    np.log10(model.Hist),
+                    xvals=model.z_bins,
+                    yvals=model.DM_bins,
+                    cmap=model.color,
+                    label="This Work",
+                    vmax=-2,
+                    vmin=-6,
+                    passed_ax=ax1
+                )
 
-            # Set up the colour bar
-            #divider = make_axes_locatable(ax)
-            #cax = divider.append_axes("right", size="5%", pad=0.05)
-            #cbar = plt.colorbar(im, cax=cax, label=r"$\mathrm{log_{10}(PDF)}$", extend='min')
-            cbar = plt.colorbar(im, ax=ax[0], label="$\mathrm{log_{10}}~\mathrm{PDF}(z)$", extend='min', pad=0.005,     )
-            cbar.ax.tick_params(axis='y', which='major', direction='out')
-            cbar.ax.tick_params(axis='y', which='minor', length=0)
+                # Set up the colour bar
+                #divider = make_axes_locatable(ax)
+                #cax = divider.append_axes("right", size="5%", pad=0.05)
+                #cbar = plt.colorbar(im, cax=cax, label=r"$\mathrm{log_{10}(PDF)}$", extend='min')
+                cbar = plt.colorbar(im, ax=ax[0], label="$\mathrm{log_{10}}~\mathrm{PDF}(z)$", extend='min', pad=0.005,     )
+                cbar.ax.tick_params(axis='y', which='major', direction='out')
+                cbar.ax.tick_params(axis='y', which='minor', length=0)
 
-        elif model.category[:4] == "mean" and model.plot_toggle:
-            ax[0].plot(model.z_vals, model.DM_vals,
-                    color=model.color,
-                    linestyle=model.linestyle,
-                    linewidth=model.linewidth,
-                    alpha=model.alpha,
-                    label=model.label,
-                    path_effects=[
-                        pe.Stroke(linewidth=model.linewidth+1,
-                                    foreground='k',
-                                    alpha=model.alpha),
-                        pe.Normal()]
-                    )
-            ax[1].plot(model.z_vals, model.DM_vals,
-                    color=model.color,
-                    linestyle=model.linestyle,
-                    linewidth=model.linewidth,
-                    alpha=model.alpha,
-                    label=model.label,
-                    )
-
-
-        elif model.category[:3] == "std" and model.plot_toggle:
-            ax[0].plot(model.z_vals, model.sigma3_upp,
-                    color=model.color,
-                    linestyle=model.linestyle,
-                    linewidth=model.linewidth,
-                    alpha=model.alpha,
-                    label="$3~\sigma$"
-                    )
-
-            ax[0].plot(model.z_vals, model.sigma3_low,
-                    color=model.color,
-                    linestyle=model.linestyle,
-                    linewidth=model.linewidth,
-                    alpha=model.alpha,
-                    )
-
-            ax[0].plot(model.z_vals, model.sigma2_upp,
-                    color=model.color,
-                    linestyle="--",
-                    linewidth=model.linewidth,
-                    alpha=model.alpha,
-                    label="$2~\sigma$"
-                    )
-
-            ax[0].plot(model.z_vals, model.sigma2_low,
-                    color=model.color,
-                    linestyle="--",
-                    linewidth=model.linewidth,
-                    alpha=model.alpha,
-                    )
-
-            ax[0].plot(model.z_vals, model.sigma1_upp,
-                    color=model.color,
-                    linestyle="-.",
-                    linewidth=model.linewidth,
-                    alpha=model.alpha,
-                    label="$1~\sigma$"
-                    )
-
-            ax[0].plot(model.z_vals, model.sigma1_low,
-                    color=model.color,
-                    linestyle="-.",
-                    linewidth=model.linewidth,
-                    alpha=model.alpha,
-                    )
+            elif model.category[:4] == "mean" and model.plot_toggle:
+                ax1.plot(model.z_vals, model.DM_vals,
+                        color=model.color,
+                        linestyle=model.linestyle,
+                        linewidth=model.linewidth,
+                        alpha=model.alpha,
+                        label=model.label,
+                        # path_effects=[
+                        #     pe.Stroke(linewidth=model.linewidth+1,
+                        #                 foreground='k',
+                        #                 alpha=model.alpha),
+                        #     pe.Normal()]
+                        )
+                ax2.plot(model.z_vals, model.DM_vals,
+                        color=model.color,
+                        linestyle=model.linestyle,
+                        linewidth=model.linewidth,
+                        alpha=model.alpha,
+                        label=model.label,
+                        )
 
 
+            elif model.category[:3] == "std" and model.plot_toggle:
+                ax1.plot(model.z_vals, model.sigma3_upp,
+                        color=model.color,
+                        linestyle=model.linestyle,
+                        linewidth=model.linewidth,
+                        alpha=model.alpha,
+                        label="$3~\sigma$"
+                        )
+
+                ax1.plot(model.z_vals, model.sigma3_low,
+                        color=model.color,
+                        linestyle=model.linestyle,
+                        linewidth=model.linewidth,
+                        alpha=model.alpha,
+                        )
+
+                ax1.plot(model.z_vals, model.sigma2_upp,
+                        color=model.color,
+                        linestyle="--",
+                        linewidth=model.linewidth,
+                        alpha=model.alpha,
+                        label="$2~\sigma$"
+                        )
+
+                ax1.plot(model.z_vals, model.sigma2_low,
+                        color=model.color,
+                        linestyle="--",
+                        linewidth=model.linewidth,
+                        alpha=model.alpha,
+                        )
+
+                ax1.plot(model.z_vals, model.sigma1_upp,
+                        color=model.color,
+                        linestyle="-.",
+                        linewidth=model.linewidth,
+                        alpha=model.alpha,
+                        label="$1~\sigma$"
+                        )
+
+                ax1.plot(model.z_vals, model.sigma1_low,
+                        color=model.color,
+                        linestyle="-.",
+                        linewidth=model.linewidth,
+                        alpha=model.alpha,
+                        )
 
 
-        elif model.category[:2] == "1D" and model.plot_toggle:
+
+
+        elif model.category[:2] in ("1D", "me") and model.plot_toggle:
             print_tools.vprint(f"{model.label}", verbose=verbose)
 
             # If the model has a marker, use an errorbar plot.
@@ -223,7 +231,7 @@ def plot_dmz_relation(models, plot_output_name="dmz_relation",
 
             # If the model has a linestyle, use a line plot.
             elif model.linestyle is not None:
-                ax[1].plot(model.z_vals, model.DM_vals,
+                ax2.plot(model.z_vals, model.DM_vals,
                         color=model.color,
                         linestyle=model.linestyle,
                         linewidth=model.linewidth,
@@ -236,56 +244,65 @@ def plot_dmz_relation(models, plot_output_name="dmz_relation",
                         #    pe.Normal()]
                        )
 
-    ax[0].set_xlim(z_min, z_max)
-    ax[0].set_ylim(dm_min, dm_max)
-    ax[1].set_xlim(z_min, z_max)
-    ax[1].set_ylim(dm_min, dm_max)
+    if batten2021 in models:
+        ax1.set_xlim(z_min, z_max)
+        ax1.set_ylim(dm_min, dm_max)
+        ax1.xaxis.set_major_locator(MaxNLocator(integer=True))
+        ax1.set_xlabel(r"$\rm{Redshift}$")
+        ax1.set_ylabel(r"$\rm{DM_{cosmic}\ \left[pc\ cm^{-3}\right] }$")
+
+        handles, labels = ax[0].get_legend_handles_labels()
+        handles = [im, *reversed(handles)]
+        labels = [im.get_label(), *reversed(labels)]
+        handles = [*reversed(handles[0:])]
+        labels = [*reversed(labels[0:])]
+
+        handles = [im, handles[0], *reversed(handles[1:])]
+        labels = [im.get_label(), labels[0], *reversed(labels[1:])]
+        ax1.legend(handles, labels, frameon=False, fontsize=15, loc="upper left", handlelength=2)
+
+        p13 = cosmology.Planck13
+        axtop = make_lookback_axis3(ax1, p13, z_max)
+        axtop.set_xlabel("$\mathrm{Lookback\ Time\ [Gyr]}$")
+
+    ax2.set_xlim(z_min, z_max)
+    ax2.set_ylim(dm_min, dm_max)
     # This forces the x-tick labels to be integers for consistancy.
     # This fixes a problem I was having where it changed from ints to floats
     # seemingly randomly for different number of models.
-    ax[0].xaxis.set_major_locator(MaxNLocator(integer=True))
-    ax[1].xaxis.set_major_locator(MaxNLocator(integer=True))
 
-    ax[0].set_xlabel(r"$\rm{Redshift}$")
-    ax[1].set_xlabel(r"$\rm{Redshift}$")
-    ax[0].set_ylabel(r"$\rm{DM_{cosmic}\ \left[pc\ cm^{-3}\right] }$")
-    ax[1].set_ylabel(r"$\rm{DM_{cosmic}\ \left[pc\ cm^{-3}\right] }$")
+    ax2.xaxis.set_major_locator(MaxNLocator(integer=True))
+    ax2.set_xlabel(r"$\rm{Redshift}$")
+    ax2.set_ylabel(r"$\rm{DM_{cosmic}\ \left[pc\ cm^{-3}\right] }$")
 
-    handles, labels = ax[0].get_legend_handles_labels()
-    #handles = [im, *reversed(handles)]
-    #labels = [im.get_label(), *reversed(labels)]
-    handles = [*reversed(handles[1:])]
-    labels = [*reversed(labels[1:])]
-    ax[0].legend(handles, labels, frameon=False, fontsize=16, loc="upper left", handlelength=2.5)
+
               #handler_map={
               #     im: HandlerColorPolyCollection()})
 
-    handles, labels = ax[1].get_legend_handles_labels()
+    handles, labels = ax2.get_legend_handles_labels()
     handles = [*reversed(handles)]
     labels = [*reversed(labels)]
-    #handles = [im, handles[0], *reversed(handles[1:])]
-    #labels = [im.get_label(), labels[0], *reversed(labels[1:])]
-    ax[1].legend(handles, labels, frameon=False, fontsize=16, loc="upper left", handlelength=2.5)
+
+    ax2.legend(reversed(handles), reversed(labels), frameon=False, fontsize=15, loc="upper left", handlelength=2)
+
+
 
 
 
     p13 = cosmology.Planck13
-    ax2 = make_lookback_axis3(ax[0], p13, z_max)
-    ax2.set_xlabel("$\mathrm{Lookback\ Time\ [Gyr]}$")
+    axtop_2 = make_lookback_axis3(ax2, p13, z_max)
+    axtop_2.set_xlabel("$\mathrm{Lookback\ Time\ [Gyr]}$")
 
-    ax2_2 = make_lookback_axis3(ax[1], p13, z_max)
-    ax2_2.set_xlabel("$\mathrm{Lookback\ Time\ [Gyr]}$")
-
-    plt.tight_layout()
+    #plt.tight_layout()
     output_file_name = os.path.join(plot_output_path, f"{plot_output_name}{plot_output_format}")
-    plt.savefig(output_file_name, dpi=200)
+    plt.savefig(output_file_name, dpi=300)
 
 
 
 if __name__ == "__main__":
     print_tools.print_header("DM-z Relation")
 
-    output_file_name = "analysis_plots/shuffled/FBsigmaL0050N0752_Mean"
+    output_file_name = "analysis_plots/shuffled/DMz_Relation_Fixed_Sigmas"
     #colours = ['#66c2a5','#fc8d62','#8da0cb','#e78ac3','#a6d854']
     #colours = ['#1b9e77','#d95f02','#7570b3','#e7298a','#66a61e']
     #colours = ['#8dd3c7','#ffffb3','#bebada','#fb8072','#80b1d3','#fdb462']
@@ -378,7 +395,7 @@ if __name__ == "__main__":
         "dm_scale"     : "linear",
         "color"        : colours[5],
         "linestyle"    : "--",
-        "linewidth"    : 2.5,
+        "linewidth"    : 3.5,
         "alpha"        : 1,
         "marker"       : None,
         "plot_toggle"  : True,
@@ -394,7 +411,7 @@ if __name__ == "__main__":
         "dm_scale"     : "linear",
         "color"        : colours[4],
         "linestyle"    : "--",
-        "linewidth"    : 2.5,
+        "linewidth"    : 3.5,
         "alpha"        : 1,
         "marker"       : None,
         "plot_toggle"  : True,
@@ -410,7 +427,7 @@ if __name__ == "__main__":
         "dm_scale"     : "linear",
         "color"        : colours[3],
         "linestyle"    : "--",
-        "linewidth"    : 2.5,
+        "linewidth"    : 3.5,
         "alpha"        : 1,
         "marker"       : None,
         "plot_toggle"  : True,
@@ -435,37 +452,38 @@ if __name__ == "__main__":
     # Macquart et al. (2020)
     macquart2020 = {
         "dir_name"     : "/home/abatten/ADMIRE/admire/DM_redshift_models",
-        "file_name"    : "macquart_2020_dm_cosmo_model.txt",
+        "file_name"    : "macquart_2020_analytic_model.txt",
         "label"        : "Macquart et al. (2020)",
         "file_format"  : "txt",
         "category"     : "1D-analytic",
         "dm_scale"     : "linear",
         "color"        : "green",
         "linestyle"    : "-",
-        "linewidth"    : 1,
+        "linewidth"    : 2.5,
         "alpha"        : 1,
         "marker"       : None,
         "plot_toggle"  : True,
     }
 
 
-    batten2020_mean = {
+    batten2021_mean = {
         #"dir_name"     : "/home/abatten/ADMIRE/admire",
         "dir_name"     : "/home/abatten/ADMIRE/admire/analysis_outputs/shuffled",
         "file_name"    : "ANALYSIS_RefL0100N1504_mean_var_std_from_pdf.txt",
         "label"        : "$\mathrm{This\ Work}\ \left\langle\mathrm{DM_{cosmic}}\\right\\rangle$",
+        #"label"        : "Batten et al. (2021)",
         "file_format"  : "txt",
         "category"     : "mean-hydrodynamic",
         "dm_scale"     : "linear",
         "color"        : "black",
         "linestyle"    : "-",
-        "linewidth"    : 4,
+        "linewidth"    : 3.5,
         "alpha"        : 1,
         "marker"       : None,
         "plot_toggle"  : True,
     }
 
-    batten2020_conf_int = {
+    batten2021_conf_int = {
         #"dir_name"     : "/home/abatten/ADMIRE/admire",
         "dir_name"     : "/home/abatten/ADMIRE/admire/analysis_outputs/shuffled",
         "file_name"    : "ANALYSIS_RefL0100N1504_confidence_intervals.txt",
@@ -482,13 +500,13 @@ if __name__ == "__main__":
     }
 
 
-    batten2020 = {
+    batten2021 = {
         #"dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0025N0376/all_snapshot_data/shuffled_output",
         "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/shuffled_output/",
         #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
         "file_name"    : "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5",
         #"file_name"    : "admire_output_DM_z_hist_total_normed_bin_width_and_idx_corrected.hdf5",
-        "label"        : "Batten (2020) RefL0100N1504",
+        "label"        : "Batten (2021)",
         "file_format"  : "hdf5",
         "category"     : "2D-hydrodynamic",
         "dm_scale"     : "linear",
@@ -504,7 +522,7 @@ if __name__ == "__main__":
         "dir_name"     : "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_RefL0100N1504/all_snapshot_data/output/T4EOS",
         #"file_name"    : "admire_output_DM_z_hist_total_normed_idx_corrected.hdf5",
         "file_name"    : "admire_output_DM_z_hist_total_DMnormed_bin_width_and_idx_corrected.hdf5",
-        "label"        : "Batten (2020) RefL0100N1504",
+        "label"        : "Batten (2021) RefL0100N1504",
         "file_format"  : "hdf5",
         "category"     : "2D-hydrodynamic",
         "dm_scale"     : "linear",
@@ -615,25 +633,23 @@ if __name__ == "__main__":
 
 
     model_dicts = [
-
-    #    macquart2020,
-
-
+        batten2021_conf_int,
+        batten2021_mean,
+        macquart2020,
         pol2019,
         jaroszynski2019,
+
         dolag2015,
         mcquinn2014,
         zhang2018,
         inoue2004,
         ioka2003,
-        batten2020_conf_int,
-        batten2020_mean,
 
-        #batten2020,
+        batten2021,
     #NoAGNL0050N0752,
     #AGNdT9L0050N0752,
     #FBZL0050N0752,
-    FBsigmaL0050N0752,
+    #FBsigmaL0050N0752,
     #FBconstL0050N0752,
     #    batten2020_other,
     #RandGaussL0100,
@@ -645,6 +661,8 @@ if __name__ == "__main__":
 #######################################################################
 #######################################################################
 
+    #model_dicts = list(reversed(model_dicts))
+
     for model in model_dicts:
         path = os.path.join(model["dir_name"], model["file_name"])
         model["path"] = path
@@ -654,7 +672,15 @@ if __name__ == "__main__":
         model = DMzModel(model_dict)
         all_models.append(model)
 
+
+
+    if batten2021 in model_dicts:
+        batten2021 = all_models[-1]
+
     plot_dmz_relation(all_models, output_file_name, "")
+
+    print(batten2021)
+    print(all_models)
 
     print_tools.print_footer()
 

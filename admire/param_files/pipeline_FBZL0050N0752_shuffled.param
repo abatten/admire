@@ -2,7 +2,7 @@
 Verbose : True
 ProgressBar : True
 MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/maps/T4EOS/DM
-OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output/
+OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output_new/
 RedshiftMin : 0.0
 RedshiftMax : 3.01650
 DistSpacing : 50
@@ -18,7 +18,7 @@ NewProjected : True
 Verbose : True
 ProgressBar : True
 MapDir: /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/maps/T4EOS/DM
-OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output/
+OutputDir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output_new/
 InterpFileName : shuffled_interpolated_dm_map
 MasterFileName : master_shuffled_interpolated_dm_maps
 Header : HEADER
@@ -26,8 +26,8 @@ Dataset : DM
 
 
 [SumMaster]
-masterdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output/
-outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output/
+masterdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output_new/
+outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output_new/
 masterfilename : master_shuffled_interpolated_dm_maps.hdf5
 sumfilename : sum_shuffled_dm_maps
 header : HEADER
@@ -37,8 +37,8 @@ num_slices : 131
 
 [1DHist]
 verbose : True
-datadir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output/
-outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output/
+datadir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output_new/
+outputdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/shuffled_output_new/
 plotdir : /fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBZL0050N0752/all_snapshot_data/plot/
 num_sub_maps : 25
 sub_map_name : sum_shuffled_dm_maps

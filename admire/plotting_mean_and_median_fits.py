@@ -62,6 +62,10 @@ def fz_relation(z, alpha):
     return alpha * fz_array
 
 
+def reviewer_model(x, A, C):
+    return A * x + C * x**2
+
+
 def make_lookback_axis(ax, cosmo, max_redshift):
     ax2 = ax.twiny()
 
@@ -95,13 +99,6 @@ def make_lookback_axis(ax, cosmo, max_redshift):
     return ax2
 
 
-
-
-
-
-
-
-
 def plot_fit(plot_params, data_params=None, stat_type="Mean", simname="RefL0100N1504"):
 
     sim_idx_dict = {
@@ -126,11 +123,12 @@ def plot_fit(plot_params, data_params=None, stat_type="Mean", simname="RefL0100N
 
 
     plt.rcParams.update(set_rc_params(usetex=True))
-    fig = plt.figure(figsize=(8,6))
-    gs = fig.add_gridspec(10, 1, wspace=0.0, hspace=0.0)
-    ax1 = fig.add_subplot(gs[:6, 0])
-    ax2 = fig.add_subplot(gs[6:8, 0], sharex=ax1)
-    ax3 = fig.add_subplot(gs[8:10, 0], sharex=ax1)
+    fig = plt.figure(figsize=(10,7.5))
+    gs = fig.add_gridspec(18, 1, wspace=0.0, hspace=0.0)
+    ax1 = fig.add_subplot(gs[:9, 0])
+    ax2 = fig.add_subplot(gs[9:12, 0], sharex=ax1)
+    ax3 = fig.add_subplot(gs[12:15, 0], sharex=ax1)
+    ax4 = fig.add_subplot(gs[15:18, 0], sharex=ax1)
     plt.setp(ax1.get_xticklabels(), visible=False)
     plt.setp(ax2.get_xticklabels(), visible=False)
     ax1.spines['bottom'].set_linewidth(0)
@@ -145,6 +143,9 @@ def plot_fit(plot_params, data_params=None, stat_type="Mean", simname="RefL0100N
 
     linear_data = np.loadtxt(plot_params["linear_data"], unpack=True, skiprows=1, usecols=range(1,8))
     non_linear_data = np.loadtxt(plot_params["non_linear_data"], unpack=True, skiprows=1, usecols=range(1,8))
+    #reviewer_data = np.loadtxt(plot_params["reviewer_data"], unpack=True, skiprows=1, usecols=range(1,8))
+    sigma_data = np.loadtxt(plot_params["sigma_data"], unpack=True, skiprows=2)
+
     sim_data = np.loadtxt(data_params["filename"], unpack=True, skiprows=2)
 
     redshifts = sim_data[0]
@@ -156,9 +157,15 @@ def plot_fit(plot_params, data_params=None, stat_type="Mean", simname="RefL0100N
     non_linear_alpha = non_linear_data[0][sim_idx]
     nonlin_dm_vals = fz_relation(redshifts, non_linear_alpha)
 
+    #reviewer_A, reviewer_C = reviewer_data[0][sim_idx], reviewer_data[2][sim_idx]
+    #reviewer_dm_vals = reviewer_model(redshifts, reviewer_A, reviewer_C)
+
+    sigma = sigma_data[4]
 
     plot_params["lin_label"] += f": $\left\langle\mathrm{{DM_{{cosmic}}}}\\right\\rangle = {linear_slope:.1f}z + {linear_intercept:.1f}$"
     plot_params["nlin_label"] += f": $\left\langle\mathrm{{DM_{{cosmic}}}}\\right\\rangle = {non_linear_alpha:.1f}F(z)$"
+    #plot_params["rev_label"] += f": $\left\langle\mathrm{{DM_{{cosmic}}}}\\right\\rangle = {reviewer_A:.1f}z {reviewer_C:.1f}z^2$"
+
 
     # Plot Actual Mean from Sim
     ax1.plot(redshifts, stat,
@@ -181,6 +188,12 @@ def plot_fit(plot_params, data_params=None, stat_type="Mean", simname="RefL0100N
         linestyle=plot_params["nlin_lstyle"],
         label=plot_params["nlin_label"])
 
+    # Plot the Reviewer Model Fit
+    #ax1.plot(redshifts, reviewer_dm_vals,
+    #    color=plot_params["rev_lcolor"],
+    #    linewidth=plot_params["rev_lwidth"],
+    #    linestyle=plot_params["rev_lstyle"],
+    #    label=plot_params["rev_label"])
 
     # Plot the Linear Model Fit Rediduals
     ax2.plot(redshifts, stat - lin_dm_vals,
@@ -196,6 +209,12 @@ def plot_fit(plot_params, data_params=None, stat_type="Mean", simname="RefL0100N
         linestyle=plot_params["nlin_lstyle"],
         label=plot_params["nlin_label"])
 
+    # Plot the Reviewer Model Fit
+    #ax2.plot(redshifts, stat - reviewer_dm_vals,
+    #    color=plot_params["rev_lcolor"],
+    #    linewidth=plot_params["rev_lwidth"],
+    #    linestyle=plot_params["rev_lstyle"],
+    #    label=plot_params["rev_label"])
 
     ax2.plot(np.linspace(-1, 4, 100), np.zeros(100), "grey", linewidth=1)
     # Plot the Linear Model Fit Relative Rediduals
@@ -212,6 +231,35 @@ def plot_fit(plot_params, data_params=None, stat_type="Mean", simname="RefL0100N
         linewidth=plot_params["nlin_lwidth"],
         linestyle=plot_params["nlin_lstyle"],
         label=plot_params["nlin_label"])
+
+    # Plot the Reviewer Model Fit
+    #ax3.plot(redshifts, (stat - reviewer_dm_vals)/stat * 100,
+    #    color=plot_params["rev_lcolor"],
+    #    linewidth=plot_params["rev_lwidth"],
+    #    linestyle=plot_params["rev_lstyle"],
+    #    label=plot_params["rev_label"])
+
+    ax4.plot(np.linspace(-1, 4, 100), np.zeros(100), "grey", linewidth=1)
+    # Plot the Linear Model Fit Rediduals
+    ax4.plot(redshifts, (stat - lin_dm_vals)/sigma,
+        color=plot_params["lin_lcolor"],
+        linewidth=plot_params["lin_lwidth"],
+        linestyle=plot_params["lin_lstyle"],
+        label=plot_params["lin_label"])
+
+    # Plot the Non-Linear Model Fit Residuals
+    ax4.plot(redshifts, (stat - nonlin_dm_vals)/sigma,
+        color=plot_params["nlin_lcolor"],
+        linewidth=plot_params["nlin_lwidth"],
+        linestyle=plot_params["nlin_lstyle"],
+        label=plot_params["nlin_label"])
+
+    # Plot the Reviewer Model Fit
+    #ax4.plot(redshifts, (stat - reviewer_dm_vals)/sigma,
+    #    color=plot_params["rev_lcolor"],
+    #    linewidth=plot_params["rev_lwidth"],
+    #    linestyle=plot_params["rev_lstyle"],
+    #    label=plot_params["rev_label"])
 
 
     print(f"stat: {stat_type}",  "mean linear residual", np.mean(((stat - lin_dm_vals)/stat * 100)**2)**0.5)
@@ -244,16 +292,17 @@ def plot_fit(plot_params, data_params=None, stat_type="Mean", simname="RefL0100N
     ax2.set_xlim(0.000001, 3.013)
 
     ax3.set_ylabel("\\textrm{Residual} \n \\textrm{(Relative \%)}", fontsize=14)
-    ax3.set_xlabel("\\textrm{Redshift}")
     ax3.set_xlim(0.000001, 3.013)
 
+    ax4.set_ylabel("$\\frac{\mathrm{Residual}}{\sigma_\mathrm{Var}}$", fontsize=14)
+    ax4.set_xlabel("\\textrm{Redshift}")
 
     plt.setp(ax1.get_xticklabels(), visible=False)
     plt.setp(ax2.get_xticklabels(), visible=False)
+    plt.setp(ax3.get_xticklabels(), visible=False)
     ax1.spines['bottom'].set_linewidth(0)
     ax1.legend()
-    plt.tight_layout()
-    plt.savefig(output_name)
+    plt.savefig(output_name, dpi=200)
 
 
 
@@ -266,6 +315,11 @@ if __name__ == "__main__":
     mean_non_linear_fit_filename = \
         "./analysis_outputs/shuffled/ANALYSIS_fit_mean_none_uncert_non_linear_model_least_squares.txt"
 
+    mean_reviewer_fit_filename = \
+        "./analysis_outputs/shuffled/ANALYSIS_fit_mean_none_uncert_reviewer_model_least_squares.txt"
+
+    sigma_filename = \
+        "./analysis_outputs/shuffled/ANALYSIS_RefL0100N1504_mean_var_std_from_pdf.txt"
 
     median_linear_fit_filename = \
         "./analysis_outputs/shuffled/ANALYSIS_fit_median_none_uncert_linear_model_least_squares.txt"
@@ -277,7 +331,9 @@ if __name__ == "__main__":
     mean_plot_params = {
         "linear_data": mean_linear_fit_filename,
         "non_linear_data": mean_non_linear_fit_filename,
-        "output_name": "Mean_DM_Linear_Non_Linear_Fits_None_Uncert",
+        "reviewer_data": mean_reviewer_fit_filename,
+        "sigma_data": sigma_filename,
+        "output_name": "REVIEWER_TEST_Mean_DM_Linear_Non_Linear_Fits_None_Uncert",
         "output_format": ".png",
         "ylabel": "$\mathrm{\langle DM_{cosmic}\\rangle \ [pc\ cm^{-3}] }$",
         "lin_lstyle": ":",
@@ -288,6 +344,10 @@ if __name__ == "__main__":
         "nlin_lwidth": 3,
         "nlin_label": "\\textrm{Model B Fit}",
         "nlin_lcolor": "#0571b0",
+        "rev_lstyle": "-.",
+        "rev_lwidth": 3,
+        "rev_label": "\\textrm{New Fit}",
+        "rev_lcolor": "#00FF00",
         "data_lstyle": "-",
         "data_lwidth": 4,
         "data_lcolor": "#000000",
@@ -318,16 +378,11 @@ if __name__ == "__main__":
     }
 
 
-    simulation = "RefL0050N0752"
-
-
-
+    simulation = "RefL0100N1504"
 
     data_params = {
         "filename": f"./analysis_outputs/shuffled/ANALYSIS_{simulation}_mean_var_std_from_pdf.txt"
     }
-
-
 
     plot_fit(mean_plot_params, data_params=data_params, stat_type="Mean", simname=simulation)
     plot_fit(median_plot_params, data_params=data_params, stat_type="Median", simname=simulation)

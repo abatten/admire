@@ -101,7 +101,7 @@ def calc_mean_from_pdf(bin_values, pdf):
 
 def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
                       plot_output_path=None, plot_output_format=".eps",
-                      relative=False, z_min=0.0, z_max=3.0, sigma_min=0, sigma_max=4000,
+                      relative=False, z_min=0.0, z_max=0.7, sigma_min=0, sigma_max=4000,
                       axis=None, verbose=True, frb_obs=None):
     """
     Plots the Sigma-z Relation
@@ -206,26 +206,57 @@ def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
                 #std3_values.append((lower_std, upper_std))
 
             if frb_obs is not None:
-               frb_handles = []
-               frb_labels = []
-               for idx, frb in enumerate(frb_obs_list):
+                frb_handles = []
+                frb_labels = []
+
+
+                frb_repeater_list = []
+                frb_non_repeater_list = []
+                for frb in frb_obs_list:
+                    if frb["Repeater"]:
+                        frb_repeater_list.append(frb)
+                    else:
+                        frb_non_repeater_list.append(frb)
+
+                colours = cmasher.take_cmap_colors('cmr.sunburst', 2, cmap_range=(0.15, 0.75), return_fmt='hex')
+
+                for idx, frb in enumerate(frb_repeater_list):
                     redshift = frb["z"]
                     dm = frb["DM"] - frb["DM_MW"]
 
                     lower_errorbar = np.array([130])
                     upper_errorbar = frb["DM_MW"]
                     errors = (lower_errorbar, upper_errorbar)
-                    colours = np.array(list(map(mpl.colors.to_hex, cmasher.chroma(np.linspace(0.15, 0.80, len(frb_obs_list))))))
-                    if frb["Repeater"]:
-                        facecolor=None
-                    else:
-                        facecolor = colours[idx]
 
-                    im = ax.errorbar(redshift, dm, yerr=errors, color=colours[idx], markerfacecolor=facecolor, marker=frb['Marker'], markersize=6, zorder=10000)
-                    frb_handles.append(im)
-                    frb_labels.append(frb["Label"])
-                    #if frb["Repeater"]:
-                    #    ax.scatter(redshift, dm, marker="o", s=80, color=colours[idx], facecolors='none')
+
+                    marker = "d"
+                    colour = colours[0]
+
+                    im = ax.errorbar(redshift, dm, yerr=errors, color=colour, marker=marker, markersize=5, zorder=10000)
+
+
+                frb_handles.append(im)
+                frb_labels.append("Repeater")
+
+
+                for idx, frb in enumerate(frb_non_repeater_list):
+                    redshift = frb["z"]
+                    dm = frb["DM"] - frb["DM_MW"]
+
+                    lower_errorbar = np.array([130])
+                    upper_errorbar = frb["DM_MW"]
+                    errors = (lower_errorbar, upper_errorbar)
+
+
+                    marker = "o"
+                    colour = colours[1]
+
+                    im = ax.errorbar(redshift, dm, yerr=errors, color=colour, marker=marker, markersize=5, zorder=10000)
+
+                frb_handles.append(im)
+                frb_labels.append("Non-Repeater")
+
+
 
             std1_values = np.array(std1_values)
             std2_values = np.array(std2_values)
@@ -258,6 +289,8 @@ def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
     ax.set_ylim(sigma_min, sigma_max)
 
     p13 = cosmology.Planck13
+    #ax.set_xlim(0, 0.7)
+    ax.set_ylim(0.0001, 1100)
     ax1_twin = math_tools.cosmology.make_lookback_time_axis(ax, cosmo=p13, z_range=(z_min, z_max))
     ax1_twin.set_xlabel("$\mathrm{Lookback\ Time\ [Gyr]}$")
 
@@ -278,7 +311,9 @@ def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
         )
     )
 
-    mean_line = mlines.Line2D([], [], color='black', linewidth=2, label=r"$\langle \mathrm{DM_{cosmo}} \rangle$")
+
+
+    mean_line = mlines.Line2D([], [], color='black', linewidth=2, label=r"$\langle \mathrm{DM_{cosmic}} \rangle$")
     sig1_legend = mpatches.Patch(color=sigma_colours[0], label=r"$1\ \sigma_\mathrm{CI}$", alpha=0.35)
     sig2_legend = mpatches.Patch(color=sigma_colours[1], label=r"$2\ \sigma_\mathrm{CI}$", alpha=0.35)
     sig3_legend = mpatches.Patch(color=sigma_colours[2], label=r"$3\ \sigma_\mathrm{CI}$", alpha=0.35)
@@ -286,15 +321,13 @@ def plot_sigmaz_relation(models, plot_output_name="sigmaz_relation",
 
     # Create legends for the FRBs and EAGLE data
     # They need to be seperate to make better use of space.
-    sigma_legend = ax.legend(handles=[mean_line, sig1_legend, sig2_legend, sig3_legend], loc='lower right', frameon=False, fontsize=11)
-    frb_legend = ax.legend(handles=frb_handles, labels=frb_labels, loc='upper left', fontsize=11, framealpha=0.3)
+    sigma_legend = ax.legend(handles=[mean_line, sig1_legend, sig2_legend, sig3_legend], loc='upper left', frameon=False, fontsize=11)
+    frb_legend = ax.legend(handles=frb_handles, labels=frb_labels, loc='lower right', fontsize=11, frameon=False)
 
     # Add the legends manually to the current Axes.
     ax.add_artist(sigma_legend)
     ax.add_artist(frb_legend)
 
-    ax.set_xlim(0, 0.7)
-    ax.set_ylim(0.0001, 1100)
 
     output_file_name = os.path.join(plot_output_path, f"{plot_output_name}{plot_output_format}")
     plt.savefig(output_file_name, dpi=300)
@@ -330,12 +363,12 @@ def calc_least_squares_frb(frb_obs):
 
         frb_var = ((frb["DM_MW"] + 130) / 2)**2
 
-        var = estimate_ci**2 + ((frb["DM_MW"] + 130) / 2)**2
+        var = estimate_ci**2 #+ ((frb["DM_MW"] + 130) / 2)**2
 
 
-        print(estimate, measured, frb_var, var)
+        print(estimate, measured)
 
-        least_sq = (estimate - measured)**2 / var
+        least_sq += (measured - estimate)**2 / estimate
 
     print(least_sq)
 
@@ -344,7 +377,7 @@ def calc_least_squares_frb(frb_obs):
 if __name__ == "__main__":
     print_tools.print_header("Sigma-z Relation")
 
-    output_file_name = "analysis_plots/shuffled/RefL0100N1504_three_sigma_CI_with_localised_frbs"
+    output_file_name = "analysis_plots/shuffled/RefL0100N1504_three_sigma_CI_with_localised_frbs_NEW"
 
 
     ##############################################################
@@ -359,9 +392,10 @@ if __name__ == "__main__":
         "z_err": np.array([0.0002]),
         "Label": "FRB 180916",# (Marcote+2020)",
         "Color": "#4d0378",
-        "Marker": "v",
+        "Marker": "D",
         "Repeater": True,
         },
+
         # Macquart 2020
         {"DM": np.array([339.5]),
         "DM_MW": np.array([37.2]),
@@ -373,6 +407,18 @@ if __name__ == "__main__":
         "Repeater": False,
         },
 
+        # Macquart 2020
+        {"DM": np.array([380]),
+        "DM_MW": np.array([27.2]),
+        "z": np.array([0.160]),
+        "z_err": np.array([0]),
+        "Label": "FRB 2004330",# (Macquart+2020)",
+        "Color": "black",
+        "Marker": "o",
+        "Repeater": False,
+        },
+
+
         #Original Repeater
         {"DM": np.array([557]),
         "DM_MW": np.array([188]),
@@ -380,9 +426,30 @@ if __name__ == "__main__":
         "z_err": np.array([0.000]),
         "Label": "FRB 121102",# (Tendulkar+2017)",
         "Color": "Grey",
-        "Marker": "v",
+        "Marker": "D",
         "Repeater": True,
         },
+
+        {"DM": np.array([507.9]),
+        "DM_MW": np.array([44.2]),
+        "z": np.array([0.2340]),
+        "z_err": np.array([0.000]),
+        "Label": "FRB 191001",# (Bhundari+2020)",
+        "Color": "Grey",
+        "Marker": "D",
+        "Repeater": False,
+        },
+
+        {"DM": np.array([504.1]),
+        "DM_MW": np.array([38.5]),
+        "z": np.array([0.2365]),
+        "z_err": np.array([0.000]),
+        "Label": "FRB 191001",# (Heinz+2020)",
+        "Color": "Grey",
+        "Marker": "D",
+        "Repeater": False,
+        },
+
 
         # Macquart 2020
         {"DM": np.array([364.5]),
@@ -436,7 +503,7 @@ if __name__ == "__main__":
         "Label": "FRB 190711",# (Macquart+2020)",
         "Color": "Black",
         "Marker": "o",
-        "Repeater": False,
+        "Repeater": True,
         },
 
         # Ravi Localised FRB
