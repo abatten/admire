@@ -33,7 +33,7 @@ def calc_idx_ranges(num_cores, num_rows, num_cols, array_size):
     return idx_ranges
 
 
-def run(params):
+def run(params, dont_sum=False):
     comm = MPI.COMM_WORLD
     rank = comm.Get_rank()
     size = comm.Get_size()
@@ -78,7 +78,7 @@ def run(params):
         for index in range(num_slices):
             print(f"Rank: {rank} Slice: {index}")
             data = master["dm_maps"][f"slice_{index:03d}"][params["dataset"]]
-            
+
             output["Redshifts"][index] = master["dm_maps"][f"slice_{index:03d}"][params["header"]].attrs["Redshift"]
 
             if index == 0:
@@ -87,11 +87,15 @@ def run(params):
                          col_ranges[0]: col_ranges[1]]
 
             # If not the first submap, add the current supmap to the previous
-            # output file. 
+            # output file.
+            elif dont_sum:
+                output["DM"][:, :, index] = \
+                    data[row_ranges[0]: row_ranges[1],
+                         col_ranges[0]: col_ranges[1]]
             else:
                 output["DM"][:, :, index] = \
                     (output["DM"][:, :, index - 1] +
-                    data[row_ranges[0]: row_ranges[1], 
+                    data[row_ranges[0]: row_ranges[1],
                          col_ranges[0]: col_ranges[1]])
 
 #                woutput["DM"][:, :, index] = (output["DM"][:, :, index] *
@@ -114,7 +118,6 @@ if __name__ == "__main__":
 
     for key, value in params.items():
         print(f"{key:<16}: {value}")
-    run(params)
+    run(params, dont_sum=True)
 
     print_tools.script_info.print_footer()
-

@@ -66,7 +66,8 @@ def run(params):
 
 
     output_filename = os.path.join(params["outputdir"],
-        f"admire_output_DM_z_hist_unnormed_fixed_mean_fixed_sigma_corrected_{rank:03d}.hdf5" )
+        f"admire_output_interpolated_maps_histogram_{rank:03d}.hdf5")
+        #f"admire_output_DM_z_hist_unnormed_fixed_mean_fixed_sigma_corrected_{rank:03d}.hdf5" )
 
     with h5py.File(output_filename, "w") as output, h5py.File(sub_map_path, "r") as submap:
         output.create_dataset("DMz_hist", data=twod_array, dtype=np.float)

@@ -4,13 +4,14 @@ import os
 import h5py
 from pyx.math_tools import cosmology as pyxcosmo
 
-output_dir_name = "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_FBconstL0050N0752/all_snapshot_data/shuffled_output/"
+output_dir_name = "/fred/oz071/abatten/ADMIRE_ANALYSIS/ADMIRE_NoAGNL0050N0752/all_snapshot_data/shuffled_output/"
 #output_dir_name = "/fred/oz071/abatten/ADMIRE_ANALYSIS/Random_Gaussian_Maps/RandL0025"
 #output_dir_name = "/fred/oz071/abatten/ADMIRE_ANALYSIS/Random_Gaussian_Maps/RandL0100"
 
-#submap_file_name = "admire_output_DM_z_hist_unnormed_*"
+submap_file_name = "admire_output_DM_z_hist_unnormed_*"
 
-submap_file_name = "admire_output_DM_z_hist_unnormed_fixed_mean_fixed_sigma_corrected_*"
+#submap_file_name = "admire_output_DM_z_hist_unnormed_fixed_mean_fixed_sigma_corrected_*"
+#submap_file_name = "admire_output_interpolated_maps_histogram_*"
 #submap_file_name = "admire_output_DM_z_hist_unnormed_divided_100_0*"
 
 #submap_file_name = "Batten2020_EAGLE_unnormed"
@@ -18,7 +19,7 @@ submap_file_name = "admire_output_DM_z_hist_unnormed_fixed_mean_fixed_sigma_corr
 
 files = glob(os.path.join(output_dir_name, submap_file_name))
 
-PDF_direction = "DM"
+PDF_direction = "z"
 
 print(files)
 
@@ -76,7 +77,8 @@ if PDF_direction == "DM":
 if PDF_direction == "None":
     data_norm = data
 
-output_name = "admire_output_DM_z_hist_total_DM_normed_newkeys.hdf5"
+output_name = "admire_output_DM_z_hist_total_z_normed_newkeys.hdf5"
+#output_name = "admire_output_DMz_interp_maps.hdf5"
 
 output_filename = os.path.join(output_dir_name, output_name)
 
